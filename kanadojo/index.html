@@ -1,0 +1,579 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="author" content="Kim Otávio">
+<meta name="application-name" content="Kana Dojo">
+<meta name="generator" content="Kana Dojo — built by Kim Otávio">
+<meta name="copyright" content="© 2025 Kim Otávio">
+<title>Kana Dojo</title>
+<style>
+:root{--bg:#0b0f14;--panel:#111723;--muted:#9fb0c0;--text:#e5efff;--accent:#7aa2ff;--accent-2:#6df1c6;--good:#6df1c6;--bad:#ff6b81;--warn:#ffbd6a;--shadow:0 10px 30px rgba(0,0,0,.35);--radius:16px}
+html{background:var(--bg)}
+body{margin:0;background:transparent;color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji"}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1200px 800px at 80% -10%, rgba(122,162,255,.12), transparent),radial-gradient(900px 600px at 10% 120%, rgba(109,241,198,.10), transparent)}
+.wrap{max-width:1100px;margin:32px auto;padding:0 16px;overflow-x:hidden}
+header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:var(--shadow);display:grid;place-items:center}
+.logo span{font-weight:700;color:#0d1420}
+h1{font-size:26px;margin:0}
+.sub{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px;grid-template-areas:"controls game"}
+@media (max-width:980px){.grid{grid-template-columns:1fr;grid-template-areas:"game" "controls"}}
+.panel{background:linear-gradient(180deg,#0e1522,#0b111b);border:1px solid rgba(122,162,255,.15);border-radius:var(--radius);box-shadow:var(--shadow);position:relative}
+.panel .inner{padding:16px;position:relative}
+.panel h2{margin:0 0 10px 0;font-size:18px}
+.sound-toggle{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#0b111b;border:1px solid rgba(122,162,255,.25);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);color:var(--text);padding:0!important;font-size:0;line-height:0}
+.sound-toggle:hover{border-color:rgba(122,162,255,.5)}
+.sound-toggle svg{width:18px;height:18px;display:block}
+.sound-off{opacity:.85}
+.row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center;margin:10px 0}
+.row label{font-size:14px;color:var(--muted)}
+.row-3{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.row-3 input[type=range]{width:100%}
+.pill{padding:6px 10px;border-radius:999px;background:#0b111b;border:1px solid rgba(122,162,255,.25);color:var(--muted);font-size:12px}
+.switch{display:flex;gap:8px;flex-wrap:wrap}
+.tag{user-select:none;border:1px solid rgba(122,162,255,.25);background:#0b111b;padding:8px 10px;border-radius:12px;font-size:13px;color:var(--muted);cursor:pointer}
+.tag.active{background:rgba(122,162,255,.16);color:var(--text);border-color:rgba(122,162,255,.5)}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
+button{appearance:none;border:0;padding:10px 14px;border-radius:12px;background:#182236;color:var(--text);cursor:pointer;font-weight:600}
+button.primary{background:linear-gradient(135deg,var(--accent),#4b78ff);color:#0d1420}
+button.ghost{border:1px solid rgba(122,162,255,.25)}
+#knownBtn{margin-left:auto}
+.game{display:grid;gap:14px}
+.card{padding:22px;border-radius:var(--radius);border:1px solid rgba(122,162,255,.15);background:radial-gradient(400px 200px at 100% 0%, rgba(122,162,255,.08), transparent),#0e1522;overflow:hidden}
+.kana{font-family:"Noto Sans JP",system-ui,sans-serif;font-size:clamp(32px,14vw,64px);letter-spacing:clamp(1px,1.2vw,4px);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:clip;width:100%;display:block;line-height:1.1;text-align:center;margin:0}
+@supports (font-size: 1cqi){.kana{font-size:clamp(32px,20cqi,64px);letter-spacing:clamp(1px,1.2cqi,4px)}}
+.kana.hira{font-weight:500}
+.kana.kata{font-weight:500}
+.prompt-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;padding:6px 0;container-type:inline-size}
+.romaji{color:var(--muted);font-size:14px}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.choice{padding:12px;border-radius:12px;border:1px solid rgba(122,162,255,.25);background:#0b111b;cursor:pointer;text-align:center}
+.choice.correct{outline:2px solid var(--good)}
+.choice.wrong{outline:2px solid var(--bad)}
+.inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=text]{width:260px;padding:10px 12px;border-radius:10px;border:1px solid rgba(122,162,255,.25);background:#0b111b;color:var(--text)}
+.bar{height:8px;background:#0b111b;border-radius:999px;border:1px solid rgba(122,162,255,.15);overflow:hidden}
+.bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+.bar.top{margin-bottom:12px}
+.muted{color:var(--muted)}
+footer{margin-top:20px;color:var(--muted);font-size:13px}
+.kbd{background:#121b2a;border:1px solid rgba(122,162,255,.3);border-bottom-color:rgba(122,162,255,.4);padding:2px 6px;border-radius:6px}
+.sliderGroup{display:grid;gap:8px;margin-top:6px}
+.sliderRow{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center}
+.sliderRow input[type=range]{width:100%}
+.timer-hud{position:absolute;top:120px;left:50%;transform:translateX(-50%);font-weight:700;color:var(--warn);letter-spacing:.5px;user-select:none;padding:2px 12px;border-radius:999px;background:#0b111b;border:1px solid rgba(122,162,255,.25);box-shadow:var(--shadow);z-index:3;pointer-events:none}
+.tip{position:relative;font-size:13px;color:var(--muted);white-space:nowrap}
+section[aria-label="controls"]{grid-area:controls}
+section[aria-label="game"]{grid-area:game}
+.known-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.known-filter{display:flex;gap:8px;align-items:center;justify-content:center}
+.known-table{width:100%;border-collapse:collapse}
+.known-table th,.known-table td{padding:10px 12px;border-bottom:1px solid rgba(122,162,255,.15);text-align:left}
+.known-empty{color:var(--muted);text-align:center;padding:22px 8px}
+.known-actions{position:absolute;top:14px;right:16px;display:flex;gap:8px}
+.knownPanel{overflow-y:scroll}
+#typeTip{display:none}
+.site-footer{margin-top:28px;padding:16px 0;border-top:1px solid rgba(122,162,255,.15);color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:12px;opacity:.9}
+.site-footer .copy a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(122,162,255,.25)}
+.site-footer .copy a:hover{color:var(--text);border-bottom-color:rgba(122,162,255,.45)}
+.paypal-btn{appearance:none;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:#0b111b;border:1px solid rgba(122,162,255,.20);color:var(--muted);font-weight:600;cursor:pointer}
+.paypal-btn:hover{border-color:rgba(122,162,255,.35);color:var(--text)}
+.paypal-btn:focus-visible{outline:2px solid rgba(122,162,255,.45);outline-offset:2px}
+.paypal-btn img{width:18px;height:18px;display:block;opacity:.9}
+.known-table{table-layout:fixed;width:100%}
+.known-table th,.known-table td{padding:8px 10px;vertical-align:top;font-size:clamp(12px,2.9vw,14px);line-height:1.25}
+.known-table th:nth-child(1),.known-table td:nth-child(1){width:46%;font-family:"Noto Sans JP",system-ui,sans-serif;font-size:clamp(13px,3.4vw,16px);letter-spacing:.5px;line-height:1.25;white-space:normal;overflow:visible;text-overflow:clip;font-weight:500}
+.known-table th:nth-child(2),.known-table td:nth-child(2){width:22%}
+.known-table th:nth-child(3),.known-table td:nth-child(3){width:32%;white-space:normal;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+@media (max-width:640px){.site-footer{flex-direction:column;justify-content:center;text-align:center;gap:10px;padding:18px 0 24px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}.actions>button{width:100%}#startBtn{grid-column:1}#resetSession{grid-column:2}#knownBtn{grid-column:1 / -1;margin-left:0}#knownPanel{position:relative}#knownPanel .known-actions{position:absolute;top:12px;right:16px;margin:0;display:flex;gap:6px}#closeKnown{padding:6px 10px;border-radius:10px;font-size:clamp(10px,3.2vw,12px);line-height:1.1}#knownPanel .known-head{margin:0 0 10px 0;padding-right:96px}#knownPanel .known-filter{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:6px;min-width:0}#knownPanel .known-filter .tag{white-space:nowrap;padding:4px 8px;border-radius:10px;font-size:clamp(10px,3.2vw,12px);line-height:1.1}.known-table th,.known-table td{padding:8px 8px;font-size:clamp(11px,3.2vw,13px)}.known-table th:nth-child(1),.known-table td:nth-child(1){width:52%;font-size:clamp(12px,3.6vw,15px);letter-spacing:.4px}.known-table th:nth-child(2),.known-table td:nth-child(2){width:20%}.known-table th:nth-child(3),.known-table td:nth-child(3){width:28%}}
+@media (min-width:980px){:root{--ui-scale:1.1}@supports (zoom:1){.wrap{zoom:var(--ui-scale)}}@supports not (zoom:1){.wrap{transform:scale(var(--ui-scale));transform-origin:top center;width:calc(100%/var(--ui-scale))}}}
+section[aria-label="controls"] .row-3:has(input[type=range]){grid-template-columns:auto 1fr 60px}
+section[aria-label="controls"] .row-3:has(input[type=range]) .pill{box-sizing:border-box;width:60px;text-align:center}
+@media (max-width:640px){section[aria-label="controls"] .row-3:has(input[type=range]){grid-template-columns:auto 1fr 56px}section[aria-label="controls"] .row-3:has(input[type=range]) .pill{width:56px}}
+@media (max-width:640px){.panel[aria-label="game"] .tip{position:static;display:block;margin:8px 0 0 0;padding:0 0;white-space:normal}#feedback{min-height:28px!important;overflow-wrap:anywhere;word-break:break-word}}
+body *:not(input):not(textarea):not([contenteditable="true"]){caret-color:transparent}
+#scriptSwitch,#modeSwitch{width:100%;display:flex}
+#scriptSwitch .tag,#modeSwitch .tag{flex:1 1 0;min-width:0;text-align:center}
+#optionsSwitch{width:100%;display:flex;flex-direction:column}
+#optionsSwitch .tag{align-self:stretch;margin:0;display:flex;justify-content:center;align-items:center;text-align:center;max-width:100%}
+.row-3:has(#scriptSwitch),.row-3:has(#modeSwitch){gap:0}
+.row-3:has(#scriptSwitch)>label,.row-3:has(#modeSwitch)>label{padding-right:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo"><span>あ</span></div>
+      <div>
+        <h1 style="margin-bottom:4px">Kana Dojo</h1>
+        <div class="sub">Hiragana & Katakana trainer</div>
+      </div>
+    </div>
+  </header>
+  <div class="grid">
+    <section class="panel" aria-label="controls">
+      <div class="inner">
+        <h2>Settings</h2>
+        <button id="soundToggle" class="sound-toggle" title="Sound: on" aria-label="Sound on">
+          <svg id="icon-sound-on" viewBox="0 0 24 24" fill="currentColor"><path d="M11 5l-4 4H4v6h3l4 4z"></path><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9a3 3 0 0 1 0 6"/><path d="M17.5 6.5a6 6 0 0 1 0 11"/></g></svg>
+          <svg id="icon-sound-off" class="sound-off" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M11 5l-4 4H4v6h3l4 4z"></path><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/></g></svg>
+        </button>
+        <div class="row">
+          <div class="row-3">
+            <label>Kana</label>
+            <div class="switch" id="scriptSwitch">
+              <span class="tag" data-value="hiragana">Hiragana</span>
+              <span class="tag" data-value="katakana">Katakana</span>
+              <span class="tag" data-value="mixed">Mixed</span>
+            </div>
+            <span></span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-3">
+            <label>Mode</label>
+            <div class="switch" id="modeSwitch">
+              <span class="tag" data-value="choice">Multiple Choice</span>
+              <span class="tag" data-value="type-romaji">Type Romaji</span>
+            </div>
+            <span></span>
+          </div>
+        </div>
+        <div class="row"><div class="row-3"><label>Difficulty</label><input type="range" id="difficulty" min="1" max="5" value="2" /><span class="pill" id="diffVal">2</span></div></div>
+        <div class="row" style="display:none;">
+          <label>Word length</label>
+          <div class="sliderGroup">
+            <div class="sliderRow"><span class="muted">Min</span><input type="range" id="minLen" min="1" max="8" value="2" /><span class="pill" id="minVal">2</span></div>
+            <div class="sliderRow"><span class="muted">Max</span><input type="range" id="maxLen" min="1" max="8" value="4" /><span class="pill" id="maxVal">4</span></div>
+          </div>
+        </div>
+        <div class="row"><div class="row-3"><label>Choices</label><input type="range" id="choices" min="2" max="10" value="4" /><span class="pill" id="choiceVal">4</span></div></div>
+        <div class="row"><div class="row-3"><label>Session size</label><input type="range" id="session" min="5" max="50" value="10" /><span class="pill" id="sessionVal">10</span></div></div>
+
+        <div class="row"><div class="row-3"><label>Timer per item</label><input type="range" id="timer" min="0" max="20" value="0" /><span class="pill" id="timerVal">Off</span></div></div>
+        <div class="row">
+          <label>Content options</label>
+          <div class="switch" id="optionsSwitch">
+            <span class="tag" data-key="dakuten">Include dakuten (が/ぱ)</span>
+            <span class="tag" data-key="yoon">Include digraphs (きゃ/キャ)</span>
+            <span class="tag" data-key="sokuon">Allow double consonant (っ/ッ)</span>
+            <span class="tag" data-key="chouon">Katakana long vowel ー</span>
+          </div>
+        </div>
+        <div class="row" style="display:none;">
+          <button id="importBtn" class="ghost" style="opacity:.8">Import words (JSON)</button>
+          <input id="fileInput" type="file" accept="application/json" style="display:none" />
+        </div>
+      </div>
+    </section>
+    <section class="panel" aria-label="game">
+      <div class="inner game">
+        <div class="actions">
+          <button class="primary" id="startBtn">Start session</button>
+          <button class="ghost" id="resetSession">Reset session</button>
+          <button class="ghost" id="knownBtn" title="Show words you’ve answered correctly">Known words</button>
+        </div>
+        <div id="timerHUD" class="timer-hud" style="display:none">0 / 0</div>
+        <div id="gameCard" class="card">
+          <div class="bar top" aria-label="progress"><i id="prog"></i></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="muted">Item <span id="idx">0</span> / <span id="total">0</span> • Streak <span id="streak">0</span></div>
+          </div>
+          <div class="prompt-box">
+            <div id="prompt" class="kana hira">–</div>
+            <div id="subPrompt" class="romaji" style="margin-top:6px"></div>
+          </div>
+        </div>
+        <div id="knownPanel" class="card knownPanel" style="display:none;position:relative">
+          <div class="known-actions"><button id="closeKnown" class="ghost" title="Back to game">Back</button></div>
+          <div class="known-head">
+            <div class="known-filter" role="group" aria-label="Filter script">
+              <span class="tag active" data-filter="all">All</span>
+              <span class="tag" data-filter="hiragana">Hiragana</span>
+              <span class="tag" data-filter="katakana">Katakana</span>
+            </div>
+          </div>
+          <div id="knownContent"></div>
+        </div>
+        <div id="multiWrap"><div class="choices" id="choicesWrap"></div></div>
+        <div id="typeWrap" style="display:none">
+          <div class="inline">
+            <input id="answer" type="text" placeholder="Type romaji (e.g. kyou)" autocomplete="off" />
+            <button id="submitBtn">Submit</button>
+            <button class="ghost" id="revealBtn" style="display:none;">Reveal</button>
+            <span id="typeTip" class="tip">Tip: press <span class="kbd">Enter</span> to submit.</span>
+          </div>
+          <div id="feedback" class="muted" style="margin-top:6px;min-height:20px"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <footer class="site-footer" role="contentinfo">
+    <div class="copy">© 2025 Kana Dojo • by Kim Otávio</div>
+    <form class="donate-form" action="https://www.paypal.com/donate" method="post" target="_top">
+      <input type="hidden" name="business" value="2ZDG5D4H6Y86G" />
+      <input type="hidden" name="no_recurring" value="0" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <button type="submit" class="paypal-btn" title="Donate via PayPal">
+        <img src="https://cdn.simpleicons.org/paypal/9fb0c0" alt="" aria-hidden="true">Donate
+      </button>
+    </form>
+  </footer>
+</div>
+<script>
+(function(){
+  const $ = s=>document.querySelector(s); const $$ = s=>Array.from(document.querySelectorAll(s));
+  const choice = a=>a[Math.floor(Math.random()*a.length)];
+  const store={get(){try{return JSON.parse(localStorage.getItem('kana_dojo_settings'))||{}}catch(e){return{}}},set(o){localStorage.setItem('kana_dojo_settings',JSON.stringify(o))}};
+  /* =================== AUDIO =================== */
+  let ACTX=null; const ctx=()=> (ACTX ||= new (window.AudioContext||window.webkitAudioContext)());
+  function beep({freq=440,dur=.12,type='sine',gain=.05,when=0}){const ac=ctx();const t0=ac.currentTime+when;const o=ac.createOscillator();const g=ac.createGain();o.type=type;o.frequency.setValueAtTime(freq,t0);g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(gain,t0+.015);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o.connect(g).connect(ac.destination);o.start(t0);o.stop(t0+dur+.02)}
+  function playSfx(kind){ if(!state.settings.sfx) return; if(kind==='good'){beep({freq:560,dur:.11,type:'sine',gain:.40});beep({freq:740,dur:.10,type:'sine',gain:.40,when:.10});} else if(kind==='bad'){beep({freq:240,dur:.12,type:'triangle',gain:.50});beep({freq:190,dur:.14,type:'triangle',gain:.50,when:.10});}}
+  /* === NEW: Short original "victory fanfare" if perfect session === */
+  function playVictoryFanfare(){
+  if(!state.settings.sfx) return;
+    // helper: note + simple drum
+    const N=(t,f,d,type='square',g=.42)=>beep({freq:f,dur:d,type,gain:g,when:t});
+    const P=(t=0)=>{const a=ctx(),t0=a.currentTime+t,b=a.createBuffer(1,a.sampleRate*.09,a.sampleRate),d=b.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-22*i/d.length);
+      const s=a.createBufferSource();s.buffer=b;const g=a.createGain();
+      g.gain.setValueAtTime(.001,t0);g.gain.linearRampToValueAtTime(.26,t0+.015);g.gain.exponentialRampToValueAtTime(.001,t0+.09);
+      s.connect(g).connect(a.destination);s.start(t0);
+      };
+      // Key center ~ G major (triadic, triumphant cadence)
+      // Hit (I chord)
+      N(0.00,784,.16,'square',.50);  // G5
+      N(0.00,988,.16,'square',.44);  // B5
+      N(0.00,1174,.16,'square',.44); // D6
+      P(0.00);
+      // Ascending arpeggio lift
+      N(0.12,587,.10,'square',.40);  // D5
+      N(0.22,784,.10,'square',.42);  // G5
+      N(0.32,988,.12,'square',.44);  // B5
+      N(0.46,1174,.12,'square',.44); // D6
+      N(0.60,1567,.16,'sawtooth',.38); // G6 sparkle
+      P(0.60);
+      // Answer phrase (brassy triangles for contrast)
+      N(0.86,1318,.14,'triangle',.40); // E6
+      N(1.02,1174,.12,'triangle',.36); // D6
+      N(1.16,1046,.12,'triangle',.36); // C6
+      // V -> I cadence (D major → G major)
+      N(1.32,1174,.14,'square',.48); // D6
+      N(1.32,880 ,.14,'square',.40); // A5
+      N(1.32,740 ,.14,'square',.40); // F#5
+      P(1.34);
+      // Final resolve (I chord, longer hold) + sparkle
+      N(1.52,1567,.36,'square',.50); // G6
+      N(1.52,1174,.36,'square',.44); // D6
+      N(1.52,988 ,.36,'square',.44); // B5
+      N(1.52,3135,.08,'sawtooth',.28); // high shimmer
+      P(1.52);
+  }
+
+  function playDefeatSting(){
+    if(!state.settings.sfx) return;
+      // helper: tone + short noise "thud"
+      const N=(t,f,d,type='triangle',g=.36)=>beep({freq:f,dur:d,type,gain:g,when:t});
+      const P=(t=0)=>{const a=ctx(),t0=a.currentTime+t,b=a.createBuffer(1,a.sampleRate*.12,a.sampleRate),d=b.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-18*i/d.length); // softer, longer tail
+        const s=a.createBufferSource();s.buffer=b;const g=a.createGain();
+        g.gain.setValueAtTime(.001,t0);g.gain.linearRampToValueAtTime(.18,t0+.02);g.gain.exponentialRampToValueAtTime(.001,t0+.12);
+        s.connect(g).connect(a.destination);s.start(t0);
+      };
+      // Minor, falling contour + dissonant start → low resolve
+      // Dissonant hit
+      N(0.00,622,.12,'sawtooth',.32);  // D#5
+      N(0.00,466,.12,'sawtooth',.28);  // Bb4
+      P(0.00);
+      // Chromatic fall
+      N(0.16,440,.12,'triangle',.34);  // A4
+      N(0.28,415,.12,'triangle',.33);  // G#4
+      N(0.40,392,.14,'triangle',.33);  // G4
+      N(0.54,370,.16,'triangle',.34);  // F#4
+      // Tension neighbor then resolve
+      N(0.76,349,.10,'square',.24);    // F4 (tension)
+      N(0.88,330,.44,'triangle',.40);  // E4 (resolve)
+      N(0.88,165,.44,'sine',.20);      // E3 bass underpin
+      P(0.90);
+    }
+
+  /* =================== ROMAJI MAPS =================== */
+  const ROM_H={'あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko','さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to','な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho','ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro','わ':'wa','を':'o','ん':'n','が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go','ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo','だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do','ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo','ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po','きゃ':'kya','きゅ':'kyu','きょ':'kyo','しゃ':'sha','しゅ':'shu','しょ':'sho','ちゃ':'cha','ちゅ':'chu','ちょ':'cho','にゃ':'nya','にゅ':'nyu','にょ':'nyo','ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo','みゃ':'mya','みゅ':'myu','みょ':'myo','りゃ':'rya','りゅ':'ryu','りょ':'ryo','ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo','じゃ':'ja','じゅ':'ju','じょ':'jo','びゃ':'bya','びゅ':'byu','びょ':'byo','ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo','っ':'*sokuon*','ー':'*chouon*'};
+  const toK = s=>s.replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+0x60));
+  const ROM_K={}; for(const [k,v] of Object.entries(ROM_H)){ ROM_K[toK(k)]=v; }
+  /* =================== WORD POOLS (trimmed in this view; original full lists kept) =================== */
+  const WORDS_H=['あさ,asa','あめ,ame','あし,ashi','あたま,atama','あに,ani','あね,ane','あした,ashita','あそび,asobi','あなた,anata','あめりか,amerika','いえ,ie','いけ,ike','いぬ,inu','いもうと,imouto','いろ,iro','いしゃ,isha','いる,iru','いち,ichi','いくら,ikura','いす,isu','うみ,umi','うた,uta','うま,uma','うし,ushi','うえ,ue','うけつけ,uketsuke','うんてん,unten','うどん,udon','うそ,uso','うで,ude','えき,eki','えんぴつ,enpitsu','えいご,eigo','えがお,egao','えいが,eiga','えだ,eda','えらい,erai','えん,en','えきまえ,ekimae','えもの,emono','おちゃ,ocha','おにぎり,onigiri','おとこ,otoko','おんな,onna','おかね,okane','おはし,ohashi','およぎ,oyogi','おんがく,ongaku','おおきい,ookii','おとな,otona','かぎ,kagi','かお,kao','かさ,kasa','かぜ,kaze','かぞく,kazoku','かみ,kami','かわ,kawa','かようび,kayoubi','かばん,kaban','かてい,katei','きっぷ,kippu','きって,kitte','きっさてん,kissaten','きょう,kyou','きょうしつ,kyoushitsu','きょうかい,kyoukai','きゅうきゅうしゃ,kyuukyuusha','きょうりゅう,kyouryuu','ぎゅうにゅう,gyuunyuu','ぎょうざ,gyouza','くつ,kutsu','くるま,kuruma','くも,kumo','くらい,kurai','くび,kubi','くち,kuchi','くらす,kurasu','くすり,kusuri','くうこう,kuukou','くちべに,kuchibeni','けっこん,kekkon','けっか,kekka','けいたい,keitai','けさ,kesa','けしき,keshiki','けむり,kemuri','けんきゅう,kenkyuu','けんどう,kendou','けんか,kenka','けが,kega','こころ,kokoro','ことば,kotoba','ことり,kotori','こども,kodomo','こたえ,kotae','こおり,koori','こうえん,kouen','こうこう,koukou','こうちゃ,koucha','ごはん,gohan','さかな,sakana','さけ,sake','さくら,sakura','さとう,satou','さっか,sakka','ざっし,zasshi','さいふ,saifu','さようなら,sayonara','さんぽ,sanpo','した,shita','しごと,shigoto','しゃしん,shashin','しょうゆ,shouyu','しゅくだい,shukudai','しゅっぱつ,shuppatsu','しょくどう,shokudou','しんぶん,shinbun','しんかんせん,shinkansen','しつもん,shitsumon','すし,sushi','すいえい,suiei','すき,suki','すっぱい,suppai','すずしい,suzushii','すな,suna','すみません,sumimasen','すもう,sumou','すっきり,sukkiri','すべて,subete','せんせい,sensei','せっけん,sekken','せかい,sekai','せき,seki','せんたく,sentaku','せんろ,senro','せいと,seito','せんもん,senmon','せつめい,setsumei','せんげつ,sengetsu','そと,soto','そら,sora','そば,soba','そふ,sofu','そぼ,sobo','そうじ,souji','そうぞう,souzou','そくたつ,sokutatsu','そっくり,sokkuri','それぞれ,sorezore','たべもの,tabemono','たまご,tamago','たいふう,taifuu','たいいく,taiiku','たくさん,takusan','たいよう,taiyou','たっきゅう,takkyuu','たいしかん,taishikan','たいせつ,taisetsu','たいいん,taiin','ちず,chizu','ちょうど,choudo','ちゃいろ,chairo','ちゅうがくせい,chuugakusei','ちょうなん,chounan','ちかてつ,chikatetsu','ちゅうしゃ,chuusha','ちゅうもん,chuumon','ちから,chikara','ちゅうい,chuui','つき,tsuki','つくえ,tsukue','つぎ,tsugi','つめ,tsume','つよい,tsuyoi','つづく,tsudzuku','つち,tsuchi','つづみ,tsuzumi','つうやく,tsuuyaku','つり,tsuri','てがみ,tegami','てんぷら,tenpura','てら,tera','てつだう,tetsudau','てんき,tenki','てんらんかい,tenrankai','てぶくろ,tebukuro','てすり,tesuri','てんごく,tengoku','てつ,tetsu','ともだち,tomodachi','とけい,tokei','とり,tori','とおい,tooi','としょかん,toshokan','とても,totemo','とまる,tomaru','とばす,tobasu','とびら,tobira','となり,tonari','なまえ,namae','なつ,natsu','なっとう,nattou','なに,nani','ならう,narau','なべ,nabe','なみ,nami','なみだ,namida','なか,naka','なわとび,nawatobi','にく,niku','にっき,nikki','にっぽん,nippon','にんじん,ninjin','にわ,niwa','にほん,nihon','にゅうがく,nyuugaku','にゅういん,nyuuin','におい,nioi','にぎやか,nigiyaka','ぬの,nuno','ぬるい,nurui','ぬすむ,nusumu','ぬま,numa','ぬいぐるみ,nuigurumi','ぬまち,numachi','ぬりえ,nurie','ぬう,nuu','ぬめり,numeri','ぬか,nuka','ねこ,neko','ねだん,nedan','ねつ,netsu','ねむい,nemui','ねんど,nendo','ねがい,negai','ねぼう,nebou','ねずみ,nezumi','ねんれい,nenrei','ねがう,negau','のど,nodo','のこぎり,nokogiri','のぼる,noboru','のりもの,norimono','のはら,nohara','のうえん,nouen','のうど,noudo','のせる,noseru','のうりょく,nouryoku','のり,nori','はな,hana','はっぱ,happa','はっぴょう,happyou','はし,hashi','はたらく,hataraku','はこ,hako','はやい,hayai','はんぶん,hanbun','はく,haku','はしる,hashiru','ひと,hito','ひこうき,hikouki','ひる,hiru','ひゃく,hyaku','ひょう,hyou','ひょうざん,hyouzan','ひよう,hiyou','ひかり,hikari','ひだり,hidari','ひみつ,himitsu','ふね,fune','ふゆ,fuyu','ふたり,futari','ふとん,futon','ふっかつ,fukkatsu','ふっとう,futtou','ふくろ,fukuro','ふだん,fudan','ふせい,fusei','ふねびき,funebiki','へや,heya','へんじ,henji','へいわ,heiwa','へた,heta','へんか,henka','へる,heru','へやだい,heyadai','へんたい,hentai','へいき,heiki','へやさがし,heyasagashi','べんきょう,benkyou','べんごし,bengoshi','べんり,benri','べつべつ,betsubetsu','べんとう,bentou','べに,beni','べっど,beddo','べつそう,bessou','べつぎょ,betsugyo','べつ,betsu','ほし,hoshi','ほんや,honya','ほうせき,hhouseki','ほそい,hosoi','ほどう,hodou','ほけん,hoken','ほしぞら,hoshizora','ほうたい,houtai','ほしがる,hoshigaru','ほめる,homeru','まど,mado','まち,machi','まっすぐ,massugu','まっちゃ,maccha','まんが,manga','まいにち,mainichi','まよう,mayou','まくら,makura','まほう,mahou','まえ,mae','みず,mizu','みゃく,myaku','みょうじ,myouji','みせ,mise','みみ,mimi','みなと,minato','みち,michi','みかん,mikan','みごと,migoto','みどり,midori','むし,mushi','むずかしい,muzukashii','むら,mura','むね,mune','むかし,mukashi','むかう,mukau','むすめ,musume','むすこ,musuko','むらさき,murasaki','むり,muri','めがね,megane','めし,meshi','めずらしい,mezurashii','めんきょ,menkyo','めいし,meishi','めいわく,meiwaku','めざまし,mezamashi','めいれい,meirei','めいじ,meiji','めいしょ,meisho','もち,mochi','もんだい,mondai','もり,mori','もよう,moyou','もっていく,motteiku','もえる,moeru','もと,moto','もどる,modoru','もくひょう,mokuhyou','もらう,morau','やきにく,yakiniku','やさい,yasai','やすみ,yasumi','やね,yane','やま,yama','やわらかい,yawarakai','やくそく,yakusoku','やかん,yakan','やくにん,yakunin','やくひん,yakuhin','ゆき,yuki','ゆうびんきょく,yuubinkyoku','ゆうえんち,yuuenchi','ゆめ,yume','ゆうべ,yuube','ゆび,yubi','ゆうしょう,yuushou','ゆにゅう,yunyuu','ゆくえ,yukue','ゆううつ,yuuutsu','ようふく,youfuku','ようちえん,youchien','ようじ,youji','よっつ,yottsu','よる,yoru','よみせ,yomise','よやく,yoyaku','よこ,yoko','よろこび,yorokobi','よりみち,yorimichi','りょうり,ryouri','りゅうがくせい,ryuugakusei','りょこう,ryokou','りかい,rikai','りく,riku','りす,risu','りゆう,riyuu','りっぱ,rippa','りんご,ringo','りょう,ryou','るす,rusu','るすばん,rusuban','るり,ruri','るいけい,ruikei','るいじ,ruiji','れいぞうこ,reizouko','れきし,rekishi','れんらく,renraku','れっしゃ,ressha','れんしゅう,renshuu','れいぼう,reibou','れいぎ,reigi','れきだい,rekidai','れんあい,renai','れい,rei','ろく,roku','ろうか,rouka','ろくおん,rokuon','ろじょう,rojo','ろうかく,roukaku','ろば,roba','ろうどう,roudou','ろうそく,rousoku','ろまん,roman','ろてん,roten','わたし,watashi','わかい,wakai','わすれる,wasureru','わらう,warau','わに,wani','わがし,wagashi','わけ,wake','わかめ,wakame','わらび,warabi','わらびもち,warabimochi'].map(s=>{const [kana,romaji]=s.split(',');return {kana,romaji}});
+  const WORDS_K=['アイス,aisu','アイドル,aidoru','アニメ,anime','アプリ,apuri','アップル,appuru','アパート,apaato','アート,aato','アルバム,arubamu','アスリート,asuriito','アメリカ,amerika','イタリア,itaria','イベント,ibento','イメージ,imeeji','インターネット,intaanetto','インタビュー,intabyuu','インフル,infuru','インク,inku','インド,indo','イオン,ion','イエス,iesu','ウイルス,uirusu','ウエイト,ueito','ウェブ,uebu','ウィンドウ,uindou','ウォーター,wootaa','ウォッチ,wotchi','ウイスキー,uisukii','ウール,uru','ウーバー,uubaa','ウィナー,uinaa','エアコン,eakon','エラー,eraa','エレベーター,erebeetaa','エネルギー,enerugii','エンジン,enjin','エリア,eria','エチケット,echiketto','エスカレーター,esukareetaa','エッセイ,essei','エッグ,eggu','オフィス,ofisu','オレンジ,orenji','オートバイ,ootobai','オリンピック,orinpikku','オンライン,onrain','オペラ,opera','オーケー,ookee','オーブン,oobun','オーダー,oodaa','オーラ,oora','カメラ,kamera','カレー,karee','カフェ,kafe','カレンダー,karendaa','カップ,kappu','カップル,kappuru','カッター,kattaa','カート,kaato','カバー,kabaa','カラオケ,karaoke','キッチン,kicchin','キップ,kippu','キャベツ,kyabetsu','キャッシュ,kyasshu','キャンプ,kyanpu','キャリア,kyaria','キャラクター,kyarakutaa','キャッチ,kyacchi','キャノン,kyanon','キャミ,kyami','ギター,gitaa','ギャラリー,gyararii','ギャラクシー,gyarakushii','ギフト,gifuto','ギョーザ,gyooza','ギャップ,gyappu','ギミック,gimikku','ギャンブル,gyanburu','ギフトカード,gifuto kaado','ギブス,gibusu','クール,kuuru','クラス,kurasu','クラブ,kurabu','クリーム,kuriimu','クリスマス,kurisumasu','クレジット,kurejitto','クッション,kusshon','クローン,kuroon','クッキー,kukkii','クロワッサン,kurowassan','ケーキ,keeki','ケーブル,keeburu','ケチャップ,kechappu','ケア,kea','ケース,keesu','ケンタッキー,kentakkii','ケミカル,kemikaru','ケンタ,kenta','ケアマネ,keamane','コーヒー,koohii','コンビニ,konbini','コンピュータ,konpyuuta','コップ,koppu','コーチ,koochi','コロッケ,korokke','コンサート,konsaato','コース,koosu','コントロール,kontrooru','コーチング,koochingu','サッカー,sakkaa','サンドイッチ,sandoicchi','サーバー,saabaa','サラダ,sarada','サンプル,sanpuru','サーフィン,saafin','サイド,saido','サイダー,saidaa','サイクル,saikuru','サスペンス,sasupensu','システム,shisutemu','ショップ,shoppu','シャツ,shatsu','シャワー,shawaa','ショート,shooto','ショッピング,shoppingu','ショック,shokku','シュート,shuuto','シューズ,shuuzu','ジュース,juusu','ジョギング,jogingu','ジャム,jamu','ジャケット,jaketto','ジャズ,jazu','ジャーナル,jaanar u','ジャパン,japan','ジョーカー,jookaa','ジョイント,jointo','ジャスト,jasuto','ジャー,jaa','スキー,sukii','スーパー,suupaa','スーツ,suutsu','スープ,suupu','スイッチ,suicchi','スケジュール,sukejuuru','スクール,sukuuru','スケート,sukeeto','スコア,sukoa','ストップ,sutoppu','セーター,seetaa','セット,setto','センス,sensu','センター,sentaa','セール,seeru','セキュリティ,security','セミナー,seminaa','セロリ,serori','セメント,semento','セブン,sebun','ソファー,sofaa','ソース,soosu','ソックス,sokkusu','ソーラー,sooraa','ソフト,sofuto','ソフトクリーム,sofuto kuriimu','ソロ,solo','ソニック,sonikku','ソーセージ,sooseeji','ソーダ,sooda','タクシー,takushii','タブレット,taburetto','タオル,taoru','タレント,talento','タスク,tasuku','タンク,tanku','タワー,tawaa','タッチ,tacchi','タイト,taito','タップ,tappu','チーズ,chiizu','チケット,chiketto','チョコ,choko','チーム,chiimu','チャーハン,chaahan','チャット,chatto','チャレンジ,charenji','チャンネル,channeru','チャンス,chansu','チェック,chekku','ツアー,tsuaa','ツール,tsuuru','ツイート,tsuiito','ツリー,tsurii','ツイン,tsuin','ツナ,tsuna','ツボ,tsubo','ツメ,tsume','ツヨミ,tsuyomi','ツボミ,tubomi','テスト,tesuto','テレビ,terebi','テーブル,teeburu','テニス,tenisu','テープ,teepu','テクノ,tekuno','テキスト,tekisuto','テロ,tero','テント,tento','テンポ,tenpo','トイレ,toire','トマト,tomato','トラック,torakku','トップ,toppu','トースト,toosuto','トーン,toon','トレンド,torendo','トレーニング,toreeningu','トレーナー,toreenaa','トロフィー,torofii','ナイフ,naifu','ナース,naasu','ナビ,nabi','ナット,natto','ナンバー,nanbaa','ナン,nan','ナイト,naito','ナタデココ,natadekoko','ナマエ,namae','ナシ,nashi','ニンジン,ninjin','ニュース,nyuusu','ニューヨーク,nyuuyooku','ニュアンス,nyuansu','ニューラル,nyuuraru','ニューバランス,nyuubaransu','ニューイヤー,nyuuiyaa','ニュー,nyuu','ニューズ,nyuuzu','ニュートン,nyuuton','ネクタイ,nekutai','ネコ,neko','ネック,nekku','ネーム,neemu','ネイル,neiru','ネオン,neon','ネス,nesu','ネックレス,nekkuresu','ネタ,neta','ネタバレ,netabare','ノート,nooto','ノイズ,noise','ノルマ,noruma','ノース,noosu','ノリ,nori','ノック,nokku','ノンアル,nonaru','ノベル,novel','ノーマル,noomaru','ノルウェー,noruwee','ハンバーガー,hanbaagaa','ハッピー,happii','ハンドル,handoru','ハンカチ,hankachi','ハート,haato','ハット,hatto','ハンマー,hanmaa','ハード,haado','ハッカソン,hakkason','ハム,hamu','ヒーター,hiitaa','ヒント,hinto','ヒット,hitto','ヒーロー,hiirou','ヒール,hiiru','ヒョウ,hyou','ヒストリー,hisutorii','ヒル,hiru','ヒアリング,hiaringu','ヒーロイン,hiiroin','フルーツ,fruutsu','フットボール,futtobooru','フライパン,furaipan','フロア,furoa','フラワー,furawaa','フレーム,freemu','フレンド,furendo','フレッシュ,furesshu','フード,fuudo','フォント,fonto','ヘリコプター,herikoputaa','ヘア,hea','ヘッド,heddo','ヘルメット,herumetto','ヘビー,hebii','ヘルシー,herushii','ヘルプ,herupu','ヘアピン,heapin','ヘッドホン,heddohon','ヘッドライト,heddoraito','ベッド,beddo','ベース,beesu','ベージュ,beeju','ベスト,besuto','ベビー,bebii','ベーカリー,beekarii','ベンチ,benchi','ベランダ,beranda','ベルト,beruto','ベーカリーショップ,beekarii shoppu','ボックス,bokkusu','ボタン,botan','ボール,booru','ボーナス,boonasu','ボディ,bodi','ボス,bosu','ボランティア,borantia','ボイス,boisu','ボーカル,bookaru','ボード,boodo','マッチ,macchi','マンガ,manga','マスク,masuku','マスター,masutaa','マネー,manee','マイク,maiku','マシン,mashin','マーク,maaku','マート,maato','マフラー,mafuraa','ミルク,miruku','ミーティング,miitingu','ミュージック,myuujikku','ミュージアム,myuujiamu','ミス,misu','ミッション,misshon','ミックス,mikkusu','ミスド,misudo','ミニ,mini','ミスティック,misutikku','ムービー,muubii','ムード,muudo','ムース,muusu','ムダ,muda','ムリ,muri','ムーブ,muubu','ムートン,muuton','ムラ,mura','ムーン,muun','ムギ,mugi','メニュー,menyuu','メッセージ,messeiji','メダル,medaru','メガネ,megane','メートル,meetoru','メディア,media','メイク,meiku','メモ,memo','メロン,meron','メンバー,membaa','モーター,mootaa','モンスター,monsutaa','モデル,moderu','モジュール,mojuuru','モバイル,mobairu','モード,moodo','モップ,moppu','モノ,mono','モール,mooru','モントリオール,montorio-ru','ヤング,yangu','ヤンキー,yonkii','ヤード,yaado','ヤマ,yama','ヤク,yaku','ヤド,yado','ヤミ,yami','ヤケ,yake','ヤクルト,yakuruto','ヤシ,yashi','ユニフォーム,yunifo-mu','ユニット,yunitto','ユリ,yuri','ユーモア,yuumoa','ユーチューブ,yuuchuubu','ユーズ,yuuzu','ユーロ,yuuro','ユニコーン,yunikoon','ユメ,yume','ユズ,yuzu','ヨーグルト,yooguruto','ヨット,yotto','ヨガ,yoga','ヨーロッパ,yooroppa','ヨミ,yomi','ヨーク,yooku','ヨセミテ,yosemite','ヨウヨウ,youyou','ヨード,yoodo','ヨミウリ,yomiuri','ラーメン,raamen','ラジオ,rajio','ラウンジ,raunji','ラケット,raketto','ラグビー,ragubii','ライター,raitaa','ライス,raisu','ライブ,raibu','ライブラリ,raiburari','ライオン,raion','リュック,ryukku','リーダー,riidaa','リンク,rinku','リズム,rizumu','リモート,rimooto','リモコン,rimokon','リスク,risuku','リサーチ,risaachi','リセット,risetto','リーチ,riichi','ルーム,ruumu','ルール,ruuru','ルビー,rubii','ルート,ruuto','ルンバ,runba','ルネサンス,runesansu','ルック,rukku','ルポ,rupo','ルイ,rui','ルビーリング,rubii ringu','レストラン,resutoran','レモン,remon','レコード,rekoodo','レベル,reberu','レビュー,review','レッスン,ressun','レイアウト,rei auto','レイン,rein','レース,reesu','レイ,rei','ロボット,robotto','ロケット,roketto','ロッカー,rokkaa','ロード,roodo','ロープ,roopu','ロンドン,rondon','ロースト,roosuto','ローカル,rokaru','ローン,roon','ロイヤル,roiyaru'].map(s=>{const [kana,romaji]=s.split(',');return {kana,romaji}});
+  const WORDS = [...WORDS_H, ...WORDS_K];
+  /* =================== Word helpers =================== */
+  function countChars(k){ return Array.from(k).length; }
+  const hasDakuten = s => /[\u3099\u309A]/.test(s.normalize('NFD'));
+  function respectsOptions(kana, script, opt){
+    if(!opt.yoon && /[ゃゅょャュョ]/.test(kana)) return false;
+    if(!opt.sokuon && /[っッ]/.test(kana)) return false;
+    if(script==='katakana' && !opt.chouon && /ー/.test(kana)) return false;
+    if(!opt.dakuten && hasDakuten(kana)) return false;
+    return true;
+  }
+  function wordPool(settings){
+    const targets = settings.script==='mixed' ? ['hiragana','katakana'] : [settings.script];
+    const pool=[];
+    for(const t of targets){
+      const base = t==='hiragana'? WORDS_H : WORDS_K;
+      for(const w of base){
+        if(!respectsOptions(w.kana,t,settings.options)) continue;
+        const units=countChars(w.kana); // inclusive
+        if(units>=settings.minLen && units<=settings.maxLen) pool.push({script:t,kana:w.kana,romaji:w.romaji});
+      }
+    }
+    const map=new Map(); for(const it of pool){ if(!map.has(it.kana)) map.set(it.kana,it); }
+    return Array.from(map.values());
+  }
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  /* =================== SETTINGS/STATE =================== */
+  const state={
+    settings:{script:'hiragana',mode:'choice',difficulty:2,minLen:2,maxLen:4,choices:4,session:10,timer:0,sfx:true,options:{dakuten:true,yoon:true,sokuon:true,chouon:true}},
+    run:{items:[],answers:[],idx:0,streak:0,correct:0,startTime:0,timerId:null,advanceId:null,countdownId:null,timerStart:0},
+    known: loadKnown()
+  };
+  Object.assign(state.settings,store.get());
+  /* =================== BASIC ENGLISH DICTS (extend as you like) =================== */
+    const DICT_H = {"あさ": "morning","あめ": "rain","あし": "foot, paw, arm (of an octopus, squid, etc.)","あたま": "head","あに": "older brother, elder brother","あね": "older sister, elder sister","あした": "tomorrow","あそび": "play, playing, game","あなた": "you","あめりか": "American","いえ": "house, residence, dwelling, home","いけ": "pond","いぬ": "dog (Canis (lupus) familiaris)","いもうと": "younger sister","いろ": "colour, color, hue, tint, tinge, shade","いしゃ": "doctor, physician","いる": "to be (of animate objects), to exist","いち": "place, position, location","いくら": "how much","いす": "chair, seat, stool, bench","うみ": "sea, ocean, waters","うた": "song, singing","うま": "horse","うし": "cattle (Bos taurus), cow, bull, ox, calf","うえ": "above, over, up","うけつけ": "reception (desk), information desk, receptionist, information clerk","うんてん": "operation (of a machine), running, working","うどん": "udon, thick Japanese wheat noodles","うそ": "lie, fib, falsehood, untruth","うで": "arm","えき": "railway station, train station","えんぴつ": "pencil","えいご": "English (language)","えがお": "smiling face, smile","えいが": "movie, film, motion picture","えだ": "branch, bough, limb, twig, sprig, spray","えらい": "great, excellent, admirable, commendable, laudable, honorable, wonderful, outstanding, extraordinary","えん": "yen (Japanese monetary unit)","えきまえ": "in front of a station","えもの": "prey, catch, kill, game","おちゃ": "tea (esp. green or barley)","おにぎり": "onigiri, rice ball (often triangular, sometimes with a filling and wrapped in nori)","おとこ": "man, male","おんな": "woman, female","おかね": "money","おはし": "don't push, don't run, don't talk, don't go back (emergency drill instruction)","およぎ": "swimming","おんがく": "music","おおきい": "big, large, great","おとな": "adult, grown-up","かぎ": "key","かお": "face, visage","かさ": "umbrella, parasol","かぜ": "(common) cold, influenza, flu, ague, inflammatory respiratory system illness (in general)","かぞく": "family","かみ": "paper","かわ": "river, stream","かようび": "Tuesday","かばん": "bag, satchel, briefcase, basket","かてい": "home, household, family, hearth","きっぷ": "ticket","きって": "stamp (postage)","きっさてん": "coffee shop, tearoom, coffee lounge, coffeehouse, cafe","きょう": "today, this day","きょうしつ": "classroom, lecture room","きょうかい": "church, congregation","きゅうきゅうしゃ": "ambulance","きょうりゅう": "dinosaur","ぎゅうにゅう": "(cow's) milk","ぎょうざ": "gyoza, pot sticker, crescent-shaped pan-fried dumplings stuffed with minced pork and vegetables","くつ": "shoe, shoes, boots, footwear, footgear","くるま": "car, automobile, vehicle","くも": "cloud","くらい": "dark, gloomy, murky","くび": "neck","くち": "mouth","くらす": "to live, to get along","くすり": "medicine, pharmaceuticals, (legal) drugs, pill, ointment, salve","くうこう": "airport","くちべに": "lipstick","けっこん": "marriage","けっか": "result, consequence, outcome, effect","けいたい": "form, shape, figure","けさ": "this morning","けしき": "scenery, scene, landscape","けむり": "smoke, fumes","けんきゅう": "research, study, investigation","けんどう": "kendo, Japanese martial art using bamboo swords","けんか": "quarrel, brawl, fight, squabble, scuffle, argument","けが": "injury, wound","こころ": "mind, heart, spirit","ことば": "language, dialect","ことり": "small bird, little bird","こども": "child, children","こたえ": "answer, reply, response","こおり": "ice","こうえん": "(public) park","こうこう": "senior high school, high school","こうちゃ": "black tea","ごはん": "cooked rice","さかな": "fish","さけ": "alcohol, sake","さくら": "cherry tree, cherry blossom","さとう": "sugar","さっか": "author, writer, novelist, artist","ざっし": "magazine, journal, periodical","さいふ": "wallet, purse, coin purse, billfold, pocketbook","さようなら": "farewell, adieu, goodbye, so long","さんぽ": "walk, stroll","した": "tongue","しごと": "work, job, labor, labour, business, task, assignment, occupation, employment","しゃしん": "photograph, photo, picture, photography","しょうゆ": "soy sauce, soya sauce, shoyu","しゅくだい": "homework, assignment","しゅっぱつ": "departure, leaving, setting off","しょくどう": "dining room, dining hall, cafeteria, canteen, messroom","しんぶん": "newspaper","しんかんせん": "Shinkansen, bullet train","しつもん": "question, inquiry, enquiry","すし": "sushi, range of dishes made with vinegared rice combined with fish, vegetables, egg, etc.","すいえい": "swimming","すき": "liking, being fond of, to one's liking, to one's taste, preferred, favourite","すっぱい": "sour, acid","すずしい": "cool, refreshing","すな": "sand, grit","すみません": "excuse me, pardon me, I'm sorry, I beg your pardon","すもう": "sumo (wrestling)","すっきり": "refreshingly, with a feeling of relief, pleasantly, (a weight) off one's shoulder","すべて": "everything, all, the whole","せんせい": "teacher, instructor, master","せっけん": "soap","せかい": "the world, society, the universe","せき": "seat","せんたく": "washing, laundry","せんろ": "railway track, railway line, railroad, railway, track, line","せいと": "pupil, student, schoolchild","せんもん": "speciality, specialty, special subject of study, area of expertise, (one's) field, (one's) major","せつめい": "explanation, exposition, description, account, caption, legend","せんげつ": "last month","そと": "outside, exterior","そら": "sky, the air, the heavens","そば": "buckwheat (Fagopyrum esculentum)","そふ": "grandfather","そぼ": "grandmother","そうじ": "cleaning, sweeping, dusting, scrubbing","そうぞう": "imagination, supposition, guess","そくたつ": "express, special delivery","そっくり": "all, altogether, entirely, completely","それぞれ": "each, respectively","たべもの": "food","たまご": "eggs, egg, spawn, roe","たいふう": "typhoon, hurricane","たいいく": "physical education, PE, gym (class)","たくさん": "a lot, lots, plenty, many, a large number, much, a great deal, a good deal","たいよう": "Sun","たっきゅう": "table tennis, ping-pong","たいしかん": "embassy","たいせつ": "important, significant, serious, crucial","たいいん": "leaving hospital, discharge from hospital","ちず": "map, atlas, chart, plan","ちょうど": "exactly, precisely, just, right, opportunely, fortunately","ちゃいろ": "brown, light brown, tawny","ちゅうがくせい": "junior high school student, middle school pupil","ちょうなん": "eldest son (may be the only son), first-born son","ちかてつ": "subway, metro, underground (railway)","ちゅうしゃ": "injection, jab, shot","ちゅうもん": "order (for an item)","ちから": "force, strength, might, vigour, vigor, energy","ちゅうい": "attention, notice, heed","つき": "Moon","つくえ": "desk","つぎ": "next, following, subsequent","つめ": "nail (e.g. fingernail, toenail), claw, talon, hoof","つよい": "strong, potent, competent, domineering, tough","つづく": "to continue, to last, to go on","つち": "earth, soil, dirt, clay, mud","つづみ": "hand drum","つうやく": "interpretation (i.e. oral translation)","つり": "fishing, angling","てがみ": "letter, note","てんぷら": "tempura, deep-fried fish and vegetables in a light batter","てら": "temple (Buddhist)","てつだう": "to help, to assist, to aid","てんき": "weather","てんらんかい": "exhibition","てぶくろ": "glove, mitten, mitt","てすり": "handrail, railing, banister","てんごく": "paradise, heaven, Kingdom of Heaven","てつ": "iron (Fe)","ともだち": "friend, companion","とけい": "clock, watch, timepiece","とり": "bird","とおい": "far, distant, far away, a long way off, in the distance","としょかん": "library","とても": "very, awfully, exceedingly","とまる": "to stop (moving), to come to a stop","とばす": "to let fly, to make fly, to send flying, to blow off (e.g. in the wind), to launch, to fire, to hurl, to shoot","とびら": "door, gate, opening","となり": "next (to), adjoining, adjacent","なまえ": "name","なつ": "summer","なっとう": "natto (fermented soybeans)","なに": "what","ならう": "to take lessons in, to be taught, to learn (from a teacher), to study (under a teacher), to get training in","なべ": "pan, pot, saucepan","なみ": "wave, billow, ripple, breaker, swell","なみだ": "tear, tears, lachrymal secretion","なか": "relation, relationship","なわとび": "skipping rope, jump rope","にく": "flesh","にっき": "diary, journal","にっぽん": "Japan","にんじん": "carrot (Daucus carota)","にわ": "garden, yard, courtyard","にほん": "Japan","にゅうがく": "admission (to a school or university), entrance, enrolment, enrollment, matriculation","にゅういん": "hospitalization, hospitalisation","におい": "smell, scent, odour, odor, stench","にぎやか": "bustling, busy, crowded, lively, prosperous, thriving","ぬの": "cloth, fabric, material, textile","ぬるい": "lukewarm, tepid","ぬすむ": "to steal","ぬま": "marsh, swamp, wetland, bog, pond","ぬいぐるみ": "stuffed toy, stuffed animal, plush toy, soft toy, cuddly toy","ぬまち": "marshland, wetland, swampland","ぬりえ": "picture for coloring in (colouring)","ぬう": "to sew, to stitch","ぬめり": "slime, sliminess, mucus, viscous liquid","ぬか": "rice bran","ねこ": "cat (esp. the domestic cat, Felis catus)","ねだん": "price, cost","ねつ": "heat","ねむい": "sleepy, drowsy, somnolent","ねんど": "fiscal year (usu. April 1 to March 31 in Japan), financial year","ねがい": "desire, wish, hope","ねぼう": "sleeping in late, oversleeping","ねずみ": "mouse, rat","ねんれい": "age, years","ねがう": "to desire, to wish, to hope","のど": "throat","のこぎり": "saw","のぼる": "to ascend, to go up, to climb","のりもの": "vehicle, conveyance, (means of) transport","のはら": "field, plain, prairie, moor","のうえん": "farm, plantation","のうど": "concentration, density","のせる": "to place on (something)","のうりょく": "ability, faculty","のり": "paste, glue","はな": "flower, blossom, bloom, petal","はっぱ": "leaf, blade (of grass), (pine) needle","はっぴょう": "announcement, publication, presenting, statement, communique, making known, breaking (news story), expressing (one's opinion), releasing, unveiling","はし": "bridge","はたらく": "to work, to labor, to labour","はこ": "box, case, chest, package, pack, crate","はやい": "fast, quick, rapid, swift, speedy, brisk, prompt","はんぶん": "half","はく": "to put on (lower-body clothing, e.g. pants, skirt, footwear), to wear","はしる": "to run","ひと": "person, someone, somebody","ひこうき": "airplane, aeroplane, plane, aircraft","ひる": "noon, midday","ひゃく": "hundred, 100","ひょう": "vote, ballot","ひょうざん": "iceberg","ひよう": "cost, expense","ひかり": "light","ひだり": "left, left-hand side","ひみつ": "secret, secrecy, confidentiality, privacy","ふね": "ship, boat, watercraft, vessel, seaplane","ふゆ": "winter","ふたり": "two persons, two people, pair, couple","ふとん": "futon, Japanese bedding consisting of a mattress and a duvet","ふっかつ": "revival (of an old system, custom, fashion, etc.), restoration, return, comeback","ふっとう": "boiling, seething","ふくろ": "bag, sack, pouch","ふだん": "usual, normal, everyday, habitual, ordinary","ふせい": "injustice, unfairness, wrongdoing, iniquity, impropriety, irregularity, dishonesty, illegality, fraud","ふねびき": "(no definition found)","へや": "room, chamber","へんじ": "reply, answer, response","へいわ": "peace, harmony","へた": "unskillful, poor, awkward","へんか": "change, variation, alteration, mutation, transition, transformation, transfiguration, metamorphosis","へる": "to decrease (in size or number), to diminish, to abate","へやだい": "room rent","へんたい": "transformation","へいき": "arms, weapon, ordnance","へやさがし": "looking for a room (to rent), apartment-hunting","べんきょう": "study","べんごし": "lawyer, attorney","べんり": "convenient, handy, useful","べつべつ": "separate, respective, different","べんとう": "bento, Japanese box lunch","べに": "deep red, crimson","べっど": "bed","べつそう": "(no definition found)","べつぎょ": "villa, another line of work","べつ": "distinction, difference, discrimination","ほし": "star (usu. excluding the Sun), planet (usu. excluding Earth), heavenly body","ほんや": "bookstore, bookshop","ほうせき": "gem, jewel, precious stone","ほそい": "thin, slender, fine","ほどう": "footpath, walkway, sidewalk, pavement","ほけん": "preservation of health, hygiene, sanitation","ほしぞら": "starry sky","ほうたい": "bandage, dressing","ほしがる": "to appear to want to have (something), to obviously want, to seem to want, to indicate a wish for","ほめる": "to praise, to commend, to compliment, to speak well of, to speak highly of","まど": "window","まち": "town, block, neighbourhood, neighborhood","まっすぐ": "straight (ahead), direct, upright, erect","まっちゃ": "matcha, powdered green tea","まんが": "cartoon, comic, comic strip, manga","まいにち": "every day, daily","まよう": "to lose one's way, to get lost, to go astray","まくら": "pillow, bolster","まほう": "magic, witchcraft, sorcery, spell","まえ": "in front (of), before (e.g. a building)","みず": "water (esp. cool or cold)","みゃく": "pulse","みょうじ": "surname, family name, last name","みせ": "store, shop, establishment, restaurant","みみ": "ear","みなと": "harbour, harbor, port","みち": "road, path, street, lane, passage","みかん": "mandarin (esp. the satsuma mandarin (Citrus unshiu)), mandarin orange, tangerine, clementine, satsuma","みごと": "splendid, magnificent, excellent, fine, superb, beautiful, admirable","みどり": "green","むし": "insect, bug, cricket, moth","むずかしい": "difficult, hard, troublesome, complicated, serious (disease, problem, etc.)","むら": "village","むね": "chest, breast","むかし": "the old days, the past, former times, a long time ago","むかう": "to face","むすめ": "daughter","むすこ": "son","むらさき": "purple, violet","むり": "unreasonable, unnatural, unjustifiable","めがね": "glasses, eyeglasses, spectacles","めし": "cooked rice","めずらしい": "rare, uncommon, unusual, curious","めんきょ": "license, licence, permission, permit, certificate","めいし": "business card","めいわく": "trouble, bother, annoyance, nuisance, inconvenience","めざまし": "alarm clock","めいれい": "order, command, decree, directive","めいじ": "Meiji era (1868.9.8-1912.7.30)","めいしょ": "famous place, noted place, place of (scenic or historical) interest, sights (to see)","もち": "mochi, small rice cake made from glutinous rice","もんだい": "question (e.g. on a test), problem","もり": "forest","もよう": "pattern, figure, design","もっていく": "to take (something) along, to bring with one, to carry (something) away, to bear","もえる": "to burn, to get fired up","もと": "origin, source, beginning","もどる": "to turn back (e.g. half-way)","もくひょう": "goal, target, aim, objective","もらう": "to receive, to take, to accept","やきにく": "yakiniku, Japanese dish of grilled meat similar to Korean barbecue","やさい": "vegetable","やすみ": "rest, recess, respite","やね": "roof","やま": "mountain, hill","やわらかい": "soft, tender, supple, flexible, limber, limp","やくそく": "promise, agreement, arrangement, one's word, contract, pact","やかん": "night, nighttime","やくにん": "government official","やくひん": "medicine, chemicals","ゆき": "snow, snowfall","ゆうびんきょく": "post office","ゆうえんち": "amusement park","ゆめ": "dream","ゆうべ": "last night, yesterday evening","ゆび": "finger, toe, digit","ゆうしょう": "overall victory, championship, winning the title","ゆにゅう": "import, importation, introduction","ゆくえ": "(one's) whereabouts","ゆううつ": "depression, melancholy, dejection, gloom, despondency","ようふく": "Western-style clothes (cf. traditional Japanese clothes)","ようちえん": "kindergarten (in Japan, non-compulsory education from age 3 until primary school), preschool","ようじ": "business, things to do, engagement, errand, affairs","よっつ": "four, 4","よる": "night, evening","よみせ": "night stall, night shop, night fair","よやく": "reservation, appointment, booking, advance order","よこ": "horizontal (as opposed to vertical)","よろこび": "joy, delight, rapture, pleasure, gratification, rejoicing, congratulations, felicitations","よりみち": "dropping in on the way, stopping off at, making a side trip","りょうり": "cooking, cookery, cuisine, food, dish","りゅうがくせい": "overseas student, exchange student","りょこう": "travel, trip, journey, excursion, tour","りかい": "understanding, comprehension, appreciation","りく": "land, shore","りす": "squirrel (any mammal of family Sciuridae)","りゆう": "reason, grounds, pretext, excuse, motive","りっぱ": "splendid, fine, handsome, elegant, imposing, prominent, impressive","りんご": "apple (fruit)","りょう": "quantity, amount, volume, capacity, portion (of food)","るす": "absence, being away from home","るすばん": "care-taking, house-sitting, house-watching, staying at home","るり": "lapis lazuli","るいけい": "cumulative total, accumulated total, total up to now","るいじ": "resemblance, similarity, likeness, analogy","れいぞうこ": "refrigerator, fridge","れきし": "history","れんらく": "contacting, (making) contact, getting in touch, communication, correspondence, call, message","れっしゃ": "train, railway train","れんしゅう": "practice, training, drill, (an) exercise, workout","れいぼう": "air conditioning, air cooling","れいぎ": "manners, courtesy, etiquette","れきだい": "successive generations, successive emperors","れんあい": "love, love-making, passion, emotion, affections","れい": "thanks, gratitude","ろく": "six, 6","ろうか": "corridor, hallway, passageway","ろくおん": "(audio) recording","ろじょう": "on the road, on the street, in the street","ろうかく": "multistoried building, castle, palace, shrine","ろば": "donkey, ass","ろうどう": "labor, labour, work","ろうそく": "candle","ろまん": "Russia and Manchuria","ろてん": "street stall, stand, booth","わたし": "I, me","わかい": "young, youthful","わすれる": "to forget, to leave carelessly, to be forgetful of, to forget about, to forget (an article)","わらう": "to laugh","わに": "crocodile, alligator","わがし": "wagashi, traditional Japanese confectionery","わけ": "reason, cause, grounds","わかめ": "wakame (species of edible brown seaweed, Undaria pinnatifida)","わらび": "bracken","わらびもち": "bracken-starch dumpling, type of dumpling traditionally made using bracken starch"};
+    const DICT_K={"アイス":"ice","アイドル":"performer (usu. in a boy band or girl group) with an image cultivated to foster a dedicated fan following, Japanese idol","アニメ":"animation, animated film, animated cartoon, anime","アプリ":"app, application","アップル":"apple","アパート":"apartment building, apartment block, apartment house","アート":"art","アルバム":"album","アスリート":"athlete","アメリカ":"(United States of) America, United States, US, USA","イタリア":"Italy","イベント":"event","イメージ":"image (in one's mind), impression, imagining, mental image, (forming a) mental picture","インターネット":"Internet","インタビュー":"interview (on television, in a newspaper, etc.)","インフル":"influenza, flu","インク":"ink","インド":"India","イオン":"ion","イエス":"Jesus (Christ)","ウイルス":"virus","ウエイト":"weight, body weight","ウェブ":"web, World Wide Web","ウィンドウ":"window","ウォーター":"water","ウォッチ":"watch (timepiece)","ウイスキー":"whisky, whiskey","ウール":"wool","ウーバー":"Uber","ウィナー":"Winner","エアコン":"air conditioner, air conditioning, aircon","エラー":"error","エレベーター":"elevator, lift","エネルギー":"energy","エンジン":"engine","エリア":"area","エチケット":"politeness, good manners, courtesy, etiquette","エスカレーター":"escalator","エッセイ":"essay","エッグ":"egg (esp. a chicken egg)","オフィス":"office","オレンジ":"orange (fruit, colour)","オートバイ":"motorcycle, motorbike","オリンピック":"Olympics, Olympic Games","オンライン":"online","オペラ":"opera","オーケー":"OK, okay","オーブン":"oven","オーダー":"order, reservation","オーラ":"aura","カメラ":"camera","カレー":"curry (esp. Japanese curry)","カフェ":"café, cafe, coffeehouse","カレンダー":"calendar","カップ":"cup (drinking vessel, measure, brassiere, prize, etc.)","カップル":"couple","カッター":"cutter, cutting tool","カート":"(shopping) cart","カバー":"cover, covering, dust jacket, wrapper","カラオケ":"karaoke","キッチン":"kitchen","キップ":"kip (Laotian currency)","キャベツ":"cabbage (Brassica oleracea)","キャッシュ":"cache","キャンプ":"camp, camping","キャリア":"career, occupation","キャラクター":"character, personality, disposition","キャッチ":"catch, catching, obtaining (e.g. information), receiving (e.g. radio transmission or phone call)","キャノン":"Canon","キャミ":"camisole","ギター":"guitar","ギャラリー":"gallery, corridor","ギャラクシー":"galaxy","ギフト":"gift","ギョーザ":"gyoza, pot sticker, crescent-shaped pan-fried dumplings stuffed with minced pork and vegetables","ギャップ":"gap","ギミック":"gimmick","ギャンブル":"gambling","ギフトカード":"gift card, gift certificate","ギブス":"plaster cast, cast","クール":"cool (temperature, color, etc.)","クラス":"class","クラブ":"club, fraternity, sorority, clubhouse","クリーム":"cream","クリスマス":"Christmas","クレジット":"credit","クッション":"cushion","クローン":"clone","クッキー":"cookie, biscuit","クロワッサン":"croissant","ケーキ":"cake","ケーブル":"cable","ケチャップ":"ketchup, catsup","ケア":"care (e.g. medical), attention, nursing","ケース":"case (container)","ケンタッキー":"Kentucky","ケミカル":"chemical","ケンタ":"Kentucky Fried Chicken, KFC","ケアマネ":"care management","コーヒー":"coffee","コンビニ":"convenience store","コンピュータ":"computer","コップ":"glass (drinking vessel), tumbler","コーチ":"coach","コロッケ":"croquette","コンサート":"concert","コース":"course, route, trail","コントロール":"control","コーチング":"coaching","サッカー":"soccer, (association) football","サンドイッチ":"sandwich","サーバー":"server","サラダ":"salad","サンプル":"sample, example, specimen","サーフィン":"surfing, surfboarding","サイド":"side","サイダー":"soda pop (esp. fruit-flavored), pop, (fizzy) lemonade, sweet carbonated drink","サイクル":"cycle","サスペンス":"suspense (esp. in a film, novel, etc.)","システム":"system","ショップ":"shop","シャツ":"shirt (undergarment), undershirt, singlet","シャワー":"shower","ショート":"short","ショッピング":"shopping","ショック":"shock (emotional)","シュート":"shooting (a ball), shot (on basket, at goal, etc.)","シューズ":"shoes","ジュース":"juice","ジョギング":"jogging","ジャム":"jam","ジャケット":"jacket","ジャズ":"jazz","ジャーナル":"journal, log","ジャパン":"Japan","ジョーカー":"joker","ジョイント":"joint","ジャスト":"just, exactly, precisely, perfectly, sharp","ジャー":"vacuum bottle, thermos","スキー":"skiing","スーパー":"supermarket","スーツ":"suit (clothing)","スープ":"(Western) soup","スイッチ":"switch","スケジュール":"schedule, program, calendar","スクール":"school","スケート":"skating (esp. ice), skate, skates","スコア":"score (in a game)","ストップ":"stop","セーター":"sweater, jumper","セット":"set (of things), combo","センス":"taste (in fashion, music, etc.), sense (e.g. of humour), flair","センター":"centre, center","セール":"sale","セキュリティ":"security","セミナー":"seminar","セロリ":"celery","セメント":"cement","セブン":"seven","ソファー":"sofa, couch","ソース":"sauce","ソックス":"socks","ソーラー":"solar","ソフト":"soft","ソフトクリーム":"soft serve ice cream","ソロ":"solo","ソニック":"sonic","ソーセージ":"sausage","ソーダ":"soda","タクシー":"taxi","タブレット":"tablet, pill","タオル":"towel","タレント":"(TV or radio) entertainer, television personality, radio personality","タスク":"task","タンク":"tank (of fluid), cistern, vat","タワー":"tower","タッチ":"touch, touching","タイト":"tight","タップ":"tap, faucet","チーズ":"cheese","チケット":"ticket","チョコ":"chocolate","チーム":"team","チャーハン":"Chinese-style fried rice","チャット":"chat","チャレンジ":"taking on (a challenge), attempt, try, tackling, challenging (someone to a contest)","チャンネル":"channel","チャンス":"chance, opportunity","チェック":"check (pattern), plaid","ツアー":"tour","ツール":"tool","ツイート":"tweet, Twitter post","ツリー":"tree (esp. a Christmas tree)","ツイン":"twin","ツナ":"tuna (esp. canned)","ツボ":"Asiatic pennywort (Centella asiatica), centella, gotu kola, Indian pennywort","ツメ":"close up","ツヨミ":"forte, strong point","ツボミ":"(flower) bud","テスト":"test (of ability, knowledge, etc.), exam, examination, quiz","テレビ":"television, TV","テーブル":"table","テニス":"tennis","テープ":"tape","テクノ":"techno-","テキスト":"text","テロ":"terror, terrorism","テント":"tent","テンポ":"tempo","トイレ":"toilet, restroom, bathroom, lavatory","トマト":"tomato (Solanum lycopersicum)","トラック":"truck, lorry","トップ":"top","トースト":"toast","トーン":"tone","トレンド":"trend","トレーニング":"training (for a skill, job, sport, etc.), practice","トレーナー":"trainer (person who trains people or animals)","トロフィー":"trophy","ナイフ":"knife","ナース":"nurse","ナビ":"navigation, (car) navigation system","ナット":"nut (as in nut and bolt)","ナンバー":"number","ナン":"not a number, NaN","ナイト":"knight","ナタデココ":"nata de coco, coconut gel","ナマエ":"name","ナシ":"nashi (esp. Pyrus pyrifolia), Japanese pear, Asian pear","ニンジン":"carrot (Daucus carota)","ニュース":"news","ニューヨーク":"New York","ニュアンス":"nuance","ニューラル":"neural","ニューバランス":"New Balance","ニューイヤー":"New Year","ニュー":"new","ニューズ":"news","ニュートン":"newton (N) (SI unit of force)","ネクタイ":"tie, necktie","ネコ":"cat (esp. the domestic cat, Felis catus)","ネック":"neck","ネーム":"name","ネイル":"nail, fingernail","ネオン":"neon (Ne)","ネス":"-ness","ネックレス":"necklace","ネタ":"material (for a story, article, etc.), information, news item","ネタバレ":"spoiler, revealing important plot points of a story, spoiling a story","ノート":"notebook, copy-book, exercise book","ノイズ":"noise","ノルマ":"(one's) quota, assignment","ノース":"north","ノリ":"nori, laver, edible seaweed, usu. Porphyra yezoensis or P. tenera, usu. dried and pressed into sheets","ノック":"knock, knocking","ノンアル":"non-alcoholic, alcohol-free","ノベル":"novel","ノーマル":"normal","ノルウェー":"Norway","ハンバーガー":"hamburger (in a bun), burger","ハッピー":"happy","ハンドル":"handle","ハンカチ":"handkerchief","ハート":"heart","ハット":"hat","ハンマー":"hammer","ハード":"hard, tough","ハッカソン":"hackathon","ハム":"ham (cured pig meat)","ヒーター":"heater","ヒント":"hint, clue","ヒット":"hit, base hit, safe hit, single","ヒーロー":"hero","ヒール":"heel (of a shoe)","ヒョウ":"leopard (Panthera pardus)","ヒストリー":"history","ヒル":"hill","ヒアリング":"listening (esp. in foreign language education), listening comprehension","ヒーロイン":"(no definition found)","フルーツ":"fruit","フットボール":"football (soccer, rugby, American football, etc.; esp. soccer)","フライパン":"fry pan, frying pan","フロア":"floor","フラワー":"flower","フレーム":"frame","フレンド":"friend","フレッシュ":"fresh","フード":"hood","フォント":"font","ヘリコプター":"helicopter","ヘア":"hair (on the head)","ヘッド":"head","ヘルメット":"helmet, hard hat, protective headgear","ヘビー":"heavy","ヘルシー":"healthy","ヘルプ":"help","ヘアピン":"hair pin, hairclip, hairgrip, bobby pin","ヘッドホン":"headphone, headphones","ヘッドライト":"headlight (on a vehicle)","ベッド":"bed","ベース":"base, basis, theme, basic ingredient","ベージュ":"beige","ベスト":"best","ベビー":"baby","ベーカリー":"bakery","ベンチ":"bench","ベランダ":"balcony","ベルト":"belt (worn around the waist)","ベーカリーショップ":"bakery","ボックス":"box, container, bin","ボタン":"button (clothing)","ボール":"ball","ボーナス":"bonus","ボディ":"body","ボス":"boss, leader, head","ボランティア":"volunteer","ボイス":"voice","ボーカル":"vocal (performance), vocals, singing","ボード":"board","マッチ":"match (for lighting a fire)","マンガ":"cartoon, comic, comic strip, manga","マスク":"(face) mask","マスター":"to master (a skill)","マネー":"money","マイク":"mike, mic, microphone","マシン":"machine","マーク":"mark, sign, symbol, emblem, logo, label, brand","マート":"mart","マフラー":"(thick) scarf, muffler","ミルク":"milk","ミーティング":"meeting","ミュージック":"music","ミュージアム":"museum","ミス":"mistake, error, blunder","ミッション":"mission, delegation","ミックス":"mix, mixture, mixing","ミスド":"Mister Donut (coffee shop)","ミニ":"mini-","ミスティック":"mystic","ムービー":"movie, film","ムード":"mood, atmosphere","ムース":"mousse","ムダ":"futility, waste, uselessness, pointlessness, idleness","ムリ":"unreasonable, unnatural, unjustifiable","ムーブ":"move, movement","ムートン":"sheepskin","ムラ":"unevenness (of colour, paint, etc.), irregularity, nonuniformity, blotchiness","ムーン":"moon","ムギ":"Pungtungia herzi (species of cyprinid)","メニュー":"menu","メッセージ":"message","メダル":"medal","メガネ":"glasses, eyeglasses, spectacles","メートル":"metre (unit of length), meter","メディア":"media","メイク":"make-up, makeup","メモ":"note, memo, memorandum","メロン":"melon (esp. a muskmelon, Cucumis melo)","メンバー":"member, participant, attendee, lineup (sport)","モーター":"motor","モンスター":"monster, monstrosity","モデル":"model, dummy, mock-up","モジュール":"module","モバイル":"mobile","モード":"mode, manner, way","モップ":"mop","モノ":"mono","モール":"(shopping) mall, shopping centre","モントリオール":"Montreal (Canada)","ヤング":"young","ヤンキー":"delinquent (youth), delinquency","ヤード":"yard (unit of distance)","ヤマ":"mountain cherry (Cerasus jamasakura)","ヤク":"(wild) yak (Bos mutus)","ヤド":"mistle thrush (Turdus viscivorus), missel thrush, stormcock","ヤミ":"Eviota lacrimae (species of pygmy goby found in Japan and Tonga)","ヤケ":"desperation, despair, self-abandonment","ヤクルト":"Yakult (probiotic drink)","ヤシ":"palm tree (any tree of family Arecaceae)","ユニフォーム":"uniform","ユニット":"unit","ユリ":"lily (Lilium spp.)","ユーモア":"humor, humour, joke","ユーチューブ":"YouTube","ユーズ":"used (e.g. used car)","ユーロ":"euro (currency), EUR","ユニコーン":"unicorn","ユメ":"pygmy killer whale (Feresa attenuata)","ユズ":"yuzu (Citrus ichangensis x C. reticulata)","ヨーグルト":"yogurt, yoghurt","ヨット":"yacht (esp. a sailing boat with one mast), sailing boat, sailboat","ヨガ":"yoga","ヨーロッパ":"Europe","ヨミ":"Abyssobrotula galatheae","ヨーク":"yoke","ヨセミテ":"Yosemite National Park","ヨウヨウ":"hullo there!, way to go!, bravo!","ヨード":"iodine (I)","ヨミウリ":"Yomiuri Land","ラーメン":"ramen, Chinese-style noodles","ラジオ":"radio","ラウンジ":"lounge","ラケット":"racket, paddle (in table-tennis)","ラグビー":"rugby","ライター":"lighter","ライス":"rice (esp. when served on a plate)","ライブ":"live (broadcasting, music, etc.)","ライブラリ":"library","ライオン":"lion (Panthera leo)","リュック":"rucksack, knapsack, backpack","リーダー":"leader","リンク":"link, linking, linkage","リズム":"rhythm","リモート":"remote (work, device, etc.)","リモコン":"remote control","リスク":"risk","リサーチ":"research","リセット":"reset","リーチ":"reach (in boxing, tennis, etc.)","ルーム":"room","ルール":"rule","ルビー":"ruby","ルート":"route, path","ルンバ":"rumba","ルネサンス":"Renaissance","ルック":"look","ルポ":"reportage, report, reporting","ルイ":"Louisiana","ルビーリング":"ruby","レストラン":"restaurant (esp. Western-style)","レモン":"lemon","レコード":"record (e.g. LP)","レベル":"level, standard, grade, class, rank","レビュー":"review","レッスン":"lesson","レイアウト":"layout","レイン":"rain","レース":"race","レイ":"lei (garland of flowers)","ロボット":"robot","ロケット":"rocket","ロッカー":"locker","ロード":"load","ロープ":"rope","ロンドン":"London (UK)","ロースト":"roast","ローカル":"local","ローン":"loan","ロイヤル":"royal"};
+  /* Fallback: naive romaji→English-ish */
+  function guessFromRomaji(r){
+    if(!r) return '';
+    let s=r.toLowerCase().replace(/-/g,' ').replace(/ou/g,'o').replace(/aa/g,'a').replace(/ii/g,'i').replace(/uu/g,'u').replace(/oo/g,'o');
+    s=s.replace(/([^a-z]|^)(apuri)/g,'$1app');
+    return s.split(' ').map(x=>x?x[0].toUpperCase()+x.slice(1):x).join(' ');
+  }
+  function lookupEnglish(kana, script, romaji){
+    if(script==='hiragana' && DICT_H[kana]) return DICT_H[kana];
+    if(script==='katakana' && DICT_K[kana]) return DICT_K[kana];
+    return guessFromRomaji(romaji);
+  }
+  /* =================== KNOWN WORDS (persisted) =================== */
+  function findRomaji(kana){
+    const f = WORDS.find(w=>w.kana===kana);
+    return f? f.romaji : '';
+  }
+  function loadKnown(){
+    let arr=[];
+    try{ arr = JSON.parse(localStorage.getItem('kana_dojo_known')) || []; }
+    catch(e){ arr=[]; }
+    return arr.map(o=>{
+      const script = o.script || (/[ぁ-ん]/.test(o.kana)? 'hiragana' : 'katakana');
+      const romaji = o.romaji || findRomaji(o.kana) || '';
+      const english = o.english || lookupEnglish(o.kana, script, romaji) || '';
+      return {kana:o.kana, script, romaji, english};
+    });
+  }
+  function saveKnown(){ localStorage.setItem('kana_dojo_known', JSON.stringify(state.known)); }
+  function addKnown(it){
+    if(!it) return;
+    const exists = state.known.some(x=>x.kana===it.kana);
+    if(!exists){
+      const romaji = it.romaji || findRomaji(it.kana) || '';
+      const english = lookupEnglish(it.kana, it.script, romaji) || '';
+      state.known.push({kana:it.kana, script:it.script, romaji, english});
+      saveKnown();
+    }
+  }
+  /* =================== UI BINDINGS =================== */
+  const showTip=()=>{const el=document.getElementById('typeTip')||document.querySelector('.tip');if(!el)return;el.style.display=state.settings.mode==='type-romaji'?'inline':'none'};
+  function bindTags(id,key){const el=$(id);el.addEventListener('click',e=>{const tag=e.target.closest('.tag');if(!tag)return;if(key==='options'){const k=tag.dataset.key;tag.classList.toggle('active');state.settings.options[k]=tag.classList.contains('active');save();return;}for(const t of $$(id+' .tag'))t.classList.remove('active');tag.classList.add('active');state.settings[key]=tag.dataset.value;save();refreshPromptWeight();if(key==='mode')showTip();});if(key!=="options"){for(const t of $$(id+' .tag'))t.classList.toggle('active',t.dataset.value===state.settings[key]);}else{for(const t of $$(id+' .tag')){const k=t.dataset.key;if(state.settings.options[k])t.classList.add('active');}}}
+  function linkRange(id,setter){const el=$(id);const update=()=>{setter(+el.value);save();};el.addEventListener('input',update);el.addEventListener('change',update);return el}
+  bindTags('#scriptSwitch','script');bindTags('#modeSwitch','mode');bindTags('#optionsSwitch','options');
+  linkRange('#difficulty',v=>{state.settings.difficulty=v;$('#diffVal').textContent=v;save();});
+  const minLen=$('#minLen'),maxLen=$('#maxLen');function syncLen(){let a=+minLen.value,b=+maxLen.value;if(a>b){[a,b]=[b,a];minLen.value=a;maxLen.value=b;}$('#minVal').textContent=a;$('#maxVal').textContent=b;state.settings.minLen=a;state.settings.maxLen=b;save()}minLen.addEventListener('input',syncLen);maxLen.addEventListener('input',syncLen);minLen.value=state.settings.minLen;maxLen.value=state.settings.maxLen;syncLen();
+  linkRange('#choices',v=>{state.settings.choices=v;$('#choiceVal').textContent=v});$('#choiceVal').textContent=state.settings.choices;linkRange('#session',v=>{state.settings.session=v;$('#sessionVal').textContent=v;$('#total').textContent=v});$('#sessionVal').textContent=state.settings.session;$('#total').textContent=state.settings.session;linkRange('#timer',v=>{state.settings.timer=v;$('#timerVal').textContent=v?(v+'s'):'Off';});$('#timerVal').textContent=state.settings.timer?(state.settings.timer+'s'):'Off';
+  function playSfxToggleOn(){try{const a=ctx(),t0=a.currentTime+.01;const tone=(dt,f,d,type='triangle',g=.22)=>{const o=a.createOscillator(),gn=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t0+dt);gn.gain.setValueAtTime(.001,t0+dt);gn.gain.linearRampToValueAtTime(g,t0+dt+.015);gn.gain.exponentialRampToValueAtTime(.0008,t0+dt+d);o.connect(gn).connect(a.destination);o.start(t0+dt);o.stop(t0+dt+d+.03)};tone(0,880,.09,'triangle',.22);tone(.07,1174,.12,'sine',.18)}catch(e){}}function renderSound(){const on=!!state.settings.sfx;$('#icon-sound-on').style.display=on?'block':'none';$('#icon-sound-off').style.display=on?'none':'block';const t=on?'Sound: on':'Sound: off',a=on?'Sound on':'Sound off',btn=$('#soundToggle');btn.title=t;btn.setAttribute('aria-label',a)}$('#soundToggle').addEventListener('click',()=>{const wasOn=!!state.settings.sfx;state.settings.sfx=!state.settings.sfx;renderSound();save();if(!wasOn&&state.settings.sfx)playSfxToggleOn()});renderSound();
+  $$('#scriptSwitch .tag').forEach(t=>t.classList.toggle('active',t.dataset.value===state.settings.script));$$('#modeSwitch .tag').forEach(t=>t.classList.toggle('active',t.dataset.value===state.settings.mode));showTip();
+  requestAnimationFrame(()=>{[["difficulty","diffVal",v=>v],["choices","choiceVal",v=>v],["session","sessionVal",v=>v],["timer","timerVal",v=>+v?`${v}s`:"Off"]].forEach(([i,p,f])=>{const e=document.getElementById(i),l=document.getElementById(p);e&&l&&(l.textContent=f(e.value))})});
+  /* =================== SESSION =================== */
+  function lenRangeByDifficulty(){const d=+state.settings.difficulty;const targets=state.settings.script==='mixed'?['hiragana','katakana']:[state.settings.script];const L=[];for(const t of targets){const base=t==='hiragana'?WORDS_H:WORDS_K;for(const w of base){if(!respectsOptions(w.kana,t,state.settings.options))continue;L.push(countChars(w.kana));}}const maxA=L.length?Math.max(...L):8;const clamp=(a,b)=>[Math.max(1,a),Math.max(1,Math.min(maxA,b))];if(d<=1)return clamp(2,4);if(d===2)return clamp(3,5);if(d===3)return clamp(4,6);if(d===4)return clamp(5,7);return clamp(6,Math.max(8,maxA));}
+  function buildSessionItems(){const s=state.settings;const R=lenRangeByDifficulty();s.minLen=R[0];s.maxLen=R[1];const pool=shuffle(wordPool(s));const take=Math.min(s.session,pool.length);const d=s.difficulty;let out=pool;if(d<=3){const target=d+2;out=pool.slice().sort((a,b)=>Math.abs(countChars(a.kana)-target)-Math.abs(countChars(b.kana)-target));}else{out=pool.slice().sort((a,b)=>countChars(b.kana)-countChars(a.kana));}return out.slice(0,take);}
+  function randomRomaji(){ return choice([...WORDS_H,...WORDS_K]).romaji; }
+  function buildChoices(e){const t=state.settings,n=new Set([e]);for(;n.size<t.choices;){let t;if(Math.random()<.5?(t=e.replace(/[aeiou]/g,(e=>Math.random()<.35?"aeiou".replace(e,"")[Math.floor(4*Math.random())]:e)),Math.random()<.3&&(t=t.replace(/[kstnhmrgzdbp]/,(e=>{const t="kstnhmrgzdbp".replace(e,"");return t[Math.floor(Math.random()*t.length)]})))):t=randomRomaji(),t=t.replace(/\s+/g,""),t&&t!==e)n.add(t)}const r=Array.from(n);for(let e=r.length-1;e>0;e--){const t=Math.floor(Math.random()*(e+1));[r[e],r[t]]=[r[t],r[e]]}return r}
+  function clearTimer(){ if(state.run.timerId){ clearTimeout(state.run.timerId); state.run.timerId=null; } if(state.run.countdownId){ clearInterval(state.run.countdownId); state.run.countdownId=null; } $('#timerHUD').style.display='none'; }
+  function clearAdvance(){ if(state.run.advanceId){ clearTimeout(state.run.advanceId); state.run.advanceId=null; } }
+  function scheduleNext(d=430){ clearAdvance(); state.run.advanceId=setTimeout(()=>{ state.run.idx++; showItem(); }, d); }
+  /* Autosize prompt */
+  const isMobile = () => window.matchMedia('(pointer:coarse)').matches || window.innerWidth <= 768;
+  function fitPrompt(){const e=$("#prompt");if(!e)return;const t=isMobile()?96:80,n=26;let o=t;e.style.fontSize=o+"px",e.style.whiteSpace="nowrap";const i=()=>e.scrollWidth<=e.clientWidth+1;for(;o>n&&!i();)o-=2,e.style.fontSize=o+"px";for(;o<t;){if(e.style.fontSize=o+1+"px",!i()){e.style.fontSize=o+"px";break}o+=1}}
+  function startSession(){closeKnownView();const s=state.settings,r=state.run;clearTimer();clearAdvance();r.items=buildSessionItems();r.answers=r.items.map(it=>it.romaji);r.idx=0;r.streak=0;r.correct=0;r.startTime=performance.now();$('#total').textContent=r.items.length;updateHeader();showItem();}
+  function resetSession(){closeKnownView();clearTimer();clearAdvance();const r=state.run;r.items=[];r.answers=[];r.idx=0;r.streak=0;r.correct=0;r.startTime=performance.now();$('#prompt').textContent='–';$('#subPrompt').textContent='';$('#choicesWrap').innerHTML='';$('#multiWrap').style.display='none';$('#typeWrap').style.display='none';$('#idx').textContent='0';$('#total').textContent=state.settings.session;$('#streak').textContent='0';$('#prog').style.width='0%';fitPrompt();}
+  function updateHeader(){$('#idx').textContent=state.run.idx+1>(state.run.items.length||1)?(state.run.items.length||1):(state.run.idx+1);$('#total').textContent=state.run.items.length||state.settings.session;$('#streak').textContent=state.run.streak;const pct=Math.min(100,Math.round((state.run.idx)/(state.run.items.length||1)*100));$('#prog').style.width=pct+'%';}
+  function startCountdown(){const total=state.settings.timer;if(!total){$('#timerHUD').style.display='none';return;}state.run.timerStart=performance.now();const hud=$('#timerHUD');hud.style.display='block';hud.textContent=`0 / ${total}`;state.run.countdownId=setInterval(()=>{const elapsed=(performance.now()-state.run.timerStart)/1000;const sec=Math.min(total,Math.floor(elapsed));hud.textContent=`${sec} / ${total}`;},1000);}
+  function showItem(){state.run.locked = false;const r=state.run,s=state.settings;if(r.idx>=r.items.length){endSession();return;}const it=r.items[r.idx],p=$('#prompt');p.textContent=it.kana;p.classList.toggle('hira',it.script==='hiragana');p.classList.toggle('kata',it.script==='katakana');$('#choicesWrap').innerHTML='';$('#feedback').textContent='';$('#answer').value='';clearTimer();if(s.timer>0){startCountdown();r.timerId=setTimeout(()=>autoWrong(),s.timer*1000);}if(s.mode==='choice'){const opts=buildChoices(it.romaji),wrap=$('#choicesWrap');opts.forEach(v=>{const b=document.createElement('button');b.className='choice';b.textContent=v;b.addEventListener('click',()=>checkAnswer(v));wrap.appendChild(b);});$('#multiWrap').style.display='block';$('#typeWrap').style.display='none';}else{$('#multiWrap').style.display='none';$('#typeWrap').style.display='block';$('#answer').focus();}updateHeader();fitPrompt();}
+  const normalizeRomaji=s=>s.toLowerCase().trim().replace(/\s+/g,'').replace(/nn/g,'n').replace(/ou/g,'oo');
+  function lockChoices(){state.run.locked=!0;document.querySelectorAll("#choicesWrap .choice").forEach(e=>{e.classList.add("disabled"),e.style.pointerEvents="none",e.setAttribute("aria-disabled","true")})}function unlockChoices(){state.run.locked=!1;document.querySelectorAll("#choicesWrap .choice").forEach(e=>{e.classList.remove("disabled"),e.style.pointerEvents="",e.removeAttribute("aria-disabled")})}
+  function checkAnswer(e){const isChoice=state.settings.mode==='choice';if(isChoice&&state.run.locked)return;const t=state.run.items[state.run.idx],n=normalizeRomaji(t.romaji),o=normalizeRomaji(e),i=n===o;if(isChoice)lockChoices();i?(state.run.correct++,state.run.streak++,markChoices(o,!0),feedback("Correct ✓","good"),playSfx("good"),addKnown(t)):(state.run.streak=0,markChoices(o,!1,n),feedback(`Wrong → ${t.romaji}`,"bad"),playSfx("bad"));clearTimer();scheduleNext(2430)}!function(){const e=document.getElementById("choicesWrap");e&&new MutationObserver(()=>unlockChoices()).observe(e,{childList:!0,subtree:!0})}();
+  function autoWrong(){ const it=state.run.items[state.run.idx]; state.run.streak=0; feedback(`Time's up → ${it.romaji}`,'bad'); playSfx('bad'); markChoices(null,false,it.romaji); scheduleNext(); }
+  function markChoices(got,isCorrect,expected){ const wrap=$('#choicesWrap'); if(!wrap.children.length) return; Array.from(wrap.children).forEach(b=>{ const v=normalizeRomaji(b.textContent); if(isCorrect){ if(v===got) b.classList.add('correct'); } else { if(expected&&v===normalizeRomaji(expected)) b.classList.add('correct'); if(got&&v===got) b.classList.add('wrong'); } }); }
+  function feedback(msg,kind){ const fb=$('#feedback'); fb.textContent=msg; fb.style.color=kind==='good'? 'var(--good)': kind==='bad'? 'var(--bad)':'var(--muted)'; }
+  function endSession(){clearTimer(),clearAdvance();const e=state.run.items.length||1,t=state.run.correct/e*100;$("#prompt").textContent="Session complete",$("#subPrompt").textContent=`Accuracy ${Math.round(t)}% — ${state.run.correct}/${e}`,$("#choicesWrap").innerHTML="",$("#typeWrap").style.display="none",$("#idx").textContent=e,$("#prog").style.width="100%",fitPrompt(),state.run.correct===e&&e>0&&playVictoryFanfare(),0===state.run.correct&&playDefeatSting()}
+  function refreshPromptWeight(){ const cls=state.settings.script==='katakana'?'kata':'hira'; $('#prompt').classList.toggle('kata', cls==='kata'); $('#prompt').classList.toggle('hira', cls!=='kata'); }
+  function save(){ store.set(state.settings); }
+  /* ===== Importer ===== */
+  $('#importBtn').addEventListener('click', ()=> $('#fileInput').click());
+  $('#fileInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text); // [{kana,romaji},...]
+      if(!Array.isArray(data)) throw new Error('JSON must be an array');
+      const clean = data.filter(x=>x && typeof x.kana==='string' && typeof x.romaji==='string');
+      localStorage.setItem('kana_dojo_custom_words', JSON.stringify(clean));
+      alert(`Imported ${clean.length} words. Restart a session to use them.`);
+      const extras = clean.map(o=>({kana:o.kana,romaji:o.romaji}));
+      WORDS_H.push(...extras.filter(x=>/[ぁ-んゔゃゅょっー]/.test(x.kana)));
+      WORDS_K.push(...extras.filter(x=>/[ァ-ヶーッャュョン]/.test(x.kana)));
+    }catch(err){ alert('Import failed: '+err.message); }
+  });
+
+  /* =================== KNOWN WORDS VIEW =================== */
+  const knownBtn = $('#knownBtn');
+  const knownPanel = $('#knownPanel');
+  const gameCard = $('#gameCard');
+  const closeKnown = $('#closeKnown');
+  const knownContent = $('#knownContent');
+  function renderKnown(filter='all'){
+    $$('#knownPanel .tag').forEach(t=>t.classList.toggle('active', t.dataset.filter===filter));
+    const rows = state.known
+      .filter(w => filter==='all' ? true : w.script===filter)
+      .sort((a,b)=> a.kana.localeCompare(b.kana));
+    if(!rows.length){
+      knownContent.innerHTML = `<div class="known-empty">No known words yet.</div>`;
+      return;
+    }
+    const html = [
+      `<table class="known-table" role="table" aria-label="Known words">`,
+      `<thead><tr><th style="width:30%">Kana</th><th style="width:30%">Romaji</th><th>English meaning</th></tr></thead><tbody>`,
+      ...rows.map(r=>`<tr><td>${r.kana}</td><td>${r.romaji||findRomaji(r.kana)||''}</td><td>${r.english||lookupEnglish(r.kana, r.script, r.romaji)||''}</td></tr>`),
+      `</tbody></table>`
+    ].join('');
+    knownContent.innerHTML = html;
+  }
+  function openKnown(filter='all'){
+    gameCard.style.display='none';
+    $('#multiWrap').style.display='none';
+    $('#typeWrap').style.display='none';
+    knownPanel.style.display='block';
+    renderKnown(filter);
+  }
+  // --- Helper: fit kana text to the prompt box width (mobile-safe) ---
+  function fitKanaToBox(){
+    const prompt = document.getElementById('prompt');
+    if(!prompt) return;
+    const box = prompt.closest('.prompt-box') || document.querySelector('.prompt-box');
+    if(!box) return;
+
+    // Reset inline overrides before measuring
+    prompt.style.fontSize = '';
+    prompt.style.letterSpacing = '';
+    prompt.style.transform = '';
+    const maxW = box.clientWidth || box.offsetWidth || 0;
+    if(!maxW) return;
+
+    for(let i=0;i<3;i++){
+      const w = prompt.scrollWidth;
+      if(w <= maxW * 0.98) break; // fits
+      const cs = getComputedStyle(prompt);
+      const fs = parseFloat(cs.fontSize) || 48;
+      const ls = parseFloat(cs.letterSpacing) || 0;
+      const ratio = (maxW * 0.98) / w;
+      const newFs = Math.max(22, fs * ratio);   
+      const newLs = ls * ratio;
+
+      prompt.style.fontSize = newFs + 'px';
+      prompt.style.letterSpacing = newLs + 'px';
+    }
+  }
+
+  function closeKnownView(){
+    knownPanel.style.display = 'none';
+    gameCard.style.display = 'block';
+
+    if (state.settings.mode === 'choice') {
+      document.getElementById('multiWrap').style.display = 'block';
+      document.getElementById('typeWrap').style.display = 'none';
+    } else {
+      document.getElementById('typeWrap').style.display = 'block';
+      document.getElementById('multiWrap').style.display = 'none';
+    }
+    requestAnimationFrame(()=>requestAnimationFrame(fitKanaToBox));
+  }
+
+  knownBtn.addEventListener('click', ()=> openKnown('all'));
+  closeKnown.addEventListener('click', closeKnownView);
+  knownPanel.addEventListener('click', (e)=>{
+    const t=e.target.closest('.tag'); if(!t) return;
+    const f=t.dataset.filter; renderKnown(f);
+  });
+  /* === LISTENERS === */
+    $('#startBtn').addEventListener('click', () => {
+     resetSession();
+     startSession();
+   });
+  $('#resetSession').addEventListener('click', resetSession);
+  $('#submitBtn').addEventListener('click', ()=> checkAnswer($('#answer').value));
+  $('#revealBtn').addEventListener('click', ()=>{ const it=state.run.items[state.run.idx]; if(it) feedback(it.romaji,''); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Enter' && state.settings.mode==='type-romaji'){ checkAnswer($('#answer').value); } });
+  /* On load/resize */
+  window.addEventListener('resize', fitPrompt);
+  fitPrompt();
+  /* Init UI */
+  $('#difficulty').value=state.settings.difficulty;
+  $('#choices').value=state.settings.choices;
+  $('#session').value=state.settings.session;
+  $('#timer').value=state.settings.timer;
+  refreshPromptWeight();
+  /* === DONATE === */
+  (function(){
+  const HOSTED="https://www.paypal.com/donate/?business=2ZDG5D4H6Y86G&no_recurring=0&currency_code=USD";
+  const $=s=>document.querySelector(s);
+  $('#donateBtn')?.addEventListener('click',()=>$('#donateMenu').style.display='block');
+  $('#donateClose')?.addEventListener('click',()=>$('#donateMenu').style.display='none');
+  $('#donateMenu')?.addEventListener('click',e=>{
+    const b=e.target.closest('button[data-amt]'); if(!b) return;
+    const amt=+b.dataset.amt;
+    const url = amt>0 ? `${HOSTED}&amount=${amt}&currency_code=USD` : HOSTED;
+    window.open(url,'_blank','noopener'); 
+  });
+})();
+  /* =================== DEV SELF-TESTS =================== */
+  // (function runSelfTests(){
+  //   function assert(name, cond){
+  //     if(cond){ console.log('%c[PASS]','color:#6df1c6', name); }
+  //     else { console.error('[FAIL]', name); }
+  //   }
+  //   // Test 0: required DOM elements exist (guards against early init issues)
+  //   assert('DOM element #startBtn exists', !!document.getElementById('startBtn'));
+  //   assert('DOM element #knownBtn exists', !!document.getElementById('knownBtn'));
+  //   assert('DOM element #gameCard exists', !!document.getElementById('gameCard'));
+  //   // Test 1: inclusive length (min==max) should return at least one item for a known length
+  //   const sample = WORDS.find(w=>countChars(w.kana)===7);
+  //   if(sample){
+  //     const testSettings={...state.settings, script:'mixed', minLen:7, maxLen:7, options:{dakuten:true,yoon:true,sokuon:true,chouon:true}};
+  //     const pool = wordPool(testSettings);
+  //     assert('inclusive length filter (7==7) contains at least one word', pool.length>0);
+  //   } else {
+  //     console.log('[SKIP] No 7-char word found in current pool for test.');
+  //   }
+  //   // Test 2: dictionary/lookup and romaji finder
+  //   assert('findRomaji("カメラ") returns non-empty', !!findRomaji('カメラ'));
+  //   assert('lookupEnglish("カメラ") returns non-empty', !!lookupEnglish('カメラ','katakana','kamera'));
+  // })();
+  window.playVictoryFanfare = playVictoryFanfare;
+  window.playDefeatSting = playDefeatSting;
+})();
+</script>
+</body>
+</html>

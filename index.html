@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kim Otávio - DOS Terminal Portfolio (CRT)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --matrix-green: #00ff00;
+            --matrix-dark-green: #00cc00;
+            --terminal-black: #000000;
+            --terminal-dark: #0a0a0a;
+            --terminal-gray: #1a1a1a;
+            --cursor-color: #00ff00;
+            --text-primary: var(--matrix-green);
+            --bg-primary: var(--terminal-black);
+            --tv-bezel: #2a2a2a;
+            --tv-screen: #1a1a1a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'IBM Plex Mono','Courier Prime',monospace;
+            background: linear-gradient(45deg,#0a0a0a,#1a1a1a);
+            color: var(--matrix-green);
+            height: 100vh; overflow: hidden; font-size: 14px; line-height: 1.4;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tv-container {
+            width: 90vw; height: 85vh; max-width: 1200px; max-height: 800px;
+            background: var(--tv-bezel); border-radius: 20px; padding: 40px; position: relative;
+            box-shadow: 0 0 50px rgba(0,255,0,.1), inset 0 0 20px rgba(0,0,0,.5), 0 20px 40px rgba(0,0,0,.8);
+        }
+        .tv-container::before {
+            content: ""; position: absolute; inset: 20px; background: var(--tv-screen); border-radius: 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,.8);
+        }
+        .tv-container::after {
+            content: ""; position: absolute; inset: 30px; border-radius: 8px; pointer-events: none;
+            background: linear-gradient(180deg,transparent 0%, rgba(0,255,0,.02) 50%, transparent 100%);
+        }
+        .console-container {
+            height: 100%; display: flex; flex-direction: column; border: 2px solid var(--matrix-green);
+            background: var(--terminal-black); position: relative; z-index: 2; border-radius: 8px; overflow: hidden;
+            filter: contrast(1.02) saturate(1.05);
+        }
+        .console-header { background: var(--matrix-green); color: var(--terminal-black); padding: 5px 10px; font-weight: bold; display:flex; justify-content:space-between; align-items:center; font-size:12px; }
+        .console-title { font-weight: bold; }
+        .console-controls { display:flex; gap:5px; }
+        .console-button { width:16px; height:16px; background:var(--terminal-black); color:var(--matrix-green); border:1px solid var(--matrix-green); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .terminal-screen { flex:1; padding:20px; overflow-y:auto; background:var(--terminal-black); font-family:'IBM Plex Mono',monospace; }
+        .command-line { background:var(--terminal-black); border-top:1px solid var(--matrix-green); padding:10px; display:flex; align-items:center; font-family:'IBM Plex Mono',monospace; position:relative; }
+        .prompt{ color:var(--matrix-green); margin-right:5px; }
+        .current-line{ display:flex; align-items:center; position:relative; }
+        .inline-input{ background:transparent; border:none; color:var(--matrix-green); font-family:'IBM Plex Mono',monospace; font-size:14px; outline:none; caret-color:transparent; width:auto; min-width:200px; }
+        .inline-cursor{ background:var(--cursor-color); width:8px; height:16px; animation:blink 1s infinite; position:absolute; left:0; }
+        @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+        .output-line{ margin:2px 0; white-space:pre-wrap; word-wrap:break-word; }
+        .command-echo{ color:var(--matrix-dark-green); }
+        .error-text{ color:#ff4444; }
+        .success-text{ color:var(--matrix-green); }
+        .info-text{ color:#ffff44; }
+        .content-section{ display:none; margin:10px 0; }
+        .content-section.active{ display:block; }
+        .section-title{ color:var(--matrix-green); font-weight:bold; margin-bottom:10px; text-decoration:underline; }
+        .skill-item{ display:flex; justify-content:space-between; margin:3px 0; }
+        .skill-bar{ width:200px; height:12px; border:1px solid var(--matrix-green); margin:0 10px; position:relative; }
+        .skill-progress{ height:100%; background:var(--matrix-green); transition:width .5s ease; }
+        .project-link{ color:var(--matrix-green); text-decoration:underline; }
+        .project-link:hover{ color:var(--matrix-dark-green); }
+        ::-webkit-scrollbar{ width:12px; }
+        ::-webkit-scrollbar-track{ background:var(--terminal-black); border:1px solid var(--matrix-green); }
+        ::-webkit-scrollbar-thumb{ background:var(--matrix-green); }
+        ::-webkit-scrollbar-thumb:hover{ background:var(--matrix-dark-green); }
+        .social-footer{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:20px; z-index:1000; }
+        .social-button{ background:var(--terminal-black); border:2px solid var(--matrix-green); color:var(--matrix-green); padding:10px 20px; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:bold; border-radius:4px; transition:all .3s ease; display:flex; align-items:center; gap:8px; }
+        .social-button:hover{ background:var(--matrix-green); color:var(--terminal-black); box-shadow:0 0 10px rgba(0,255,0,.5); }
+        .social-button:visited{ color:var(--matrix-green); }
+        .social-button:hover:visited{ color:var(--terminal-black); }
+
+        /* ========= CRT Overlay ========= */
+        .crt-overlay{
+            position:absolute; inset: 22px; /* slightly inside the inner bezel */
+            border-radius: 10px; pointer-events:none; z-index: 3;
+            /* Multiple backgrounds: vignette + scanlines */
+            background:
+                radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,.35) 100%),
+                repeating-linear-gradient(to bottom, rgba(255,255,255,.05) 0px, rgba(255,255,255,.03) 1px, rgba(0,0,0,0) 2px);
+            mix-blend-mode: overlay; /* enhances on dark screens */
+            opacity: .25;
+            animation: crt-flicker 8s infinite steps(60) alternate;
+        }
+        .crt-scanline{
+            position:absolute; left:22px; right:22px; height:2px; top:22px; border-radius:10px; z-index:4; pointer-events:none;
+            background: linear-gradient(to bottom, rgba(255,255,255,.2), rgba(255,255,255,0));
+            animation: scan-move 6s linear infinite;
+        }
+        @keyframes crt-flicker { 0%{opacity:.22} 10%{opacity:.27} 20%{opacity:.23} 35%{opacity:.28} 50%{opacity:.21} 65%{opacity:.26} 80%{opacity:.24} 100%{opacity:.29} }
+        @keyframes scan-move { 0%{ top:22px } 100%{ top: calc(100% - 24px) } }
+        /* optional subtle warp */
+        .console-container{ transform: perspective(1200px) translateZ(0); }
+        .tv-container.warp .console-container{ animation: warp-wobble 20s ease-in-out infinite; }
+        @keyframes warp-wobble{ 0%,100%{ transform: perspective(1200px) translateZ(0) } 50%{ transform: perspective(1200px) translateZ(0) skewX(.15deg) skewY(.2deg) } }
+    </style>
+</head>
+<body>
+    <div class="tv-container warp">
+        <div class="console-container">
+            <div class="console-header">
+                <span class="console-title">Kim Otávio - Senior .NET Developer Terminal</span>
+                <div class="console-controls">
+                    <button class="console-button">_</button>
+                    <button class="console-button">□</button>
+                    <button class="console-button">×</button>
+                </div>
+            </div>
+            <div class="terminal-screen" id="terminalScreen">
+                <div class="output-line">Welcome to Kim Otávio's Interactive Portfolio Terminal</div>
+                <div class="output-line">Type "dir" to explore the portfolio or "help" for available commands.</div>
+                <div class="output-line"></div>
+                <div class="current-line">
+                    <span class="output-line">C:\\PORTFOLIO></span>
+                    <input type="text" class="inline-input" id="commandInput" autocomplete="off" />
+                    <span class="inline-cursor" id="cursor"></span>
+                </div>
+            </div>
+        </div>
+        <!-- CRT visual overlays on top of the screen -->
+        <div class="crt-overlay"></div>
+        <div class="crt-scanline"></div>
+    </div>
+
+    <!-- (content sections omitted here for brevity in this CRT-only variant) -->
+
+    <script>
+        const terminalScreen = document.getElementById('terminalScreen');
+        const initialInput = document.getElementById('commandInput');
+        const commands = { 'dir': showDirectory, 'help': showHelp, 'about': showAbout, 'about.exe': showAbout, 'skills': showSkills, 'skills.exe': showSkills, 'projects': showProjects, 'projects.exe': showProjects, 'github': showGithub, 'github.exe': showGithub, 'type': typeFile, 'cls': clearScreen, 'clear': clearScreen, 'exit': exitTerminal, 'ver': showVersion };
+        let commandHistory = []; let historyIndex = -1;
+        function updateCursorPosition(lineEl){ const line = lineEl || document.querySelector('.current-line:last-child'); if(!line) return; const input=line.querySelector('.inline-input'); const cursor=line.querySelector('.inline-cursor'); const prompt=line.querySelector('.output-line'); if(!input||!cursor||!prompt) return; const c=document.createElement('canvas'); const ctx=c.getContext('2d'); ctx.font='14px "IBM Plex Mono", monospace'; const pw=ctx.measureText(prompt.textContent).width; const iw=ctx.measureText(input.value).width; cursor.style.left=(pw+iw+5)+'px'; }
+        function bindInputEvents(input){ if(!input) return; input.addEventListener('input', ()=>updateCursorPosition(input.parentElement)); input.addEventListener('keydown', handleKeyDown); input.focus(); updateCursorPosition(input.parentElement); }
+        function handleKeyDown(e){ const line=this.parentElement; if(e.key==='Enter'){ const commandText=this.value.trim(); processCommand(commandText);} else if(e.key==='ArrowUp'){ e.preventDefault(); if(historyIndex < commandHistory.length-1){ historyIndex++; this.value = commandHistory[commandHistory.length-1-historyIndex]||''; updateCursorPosition(line);} } else if(e.key==='ArrowDown'){ e.preventDefault(); if(historyIndex>0){ historyIndex--; this.value = commandHistory[commandHistory.length-1-historyIndex]||''; } else if(historyIndex===0){ historyIndex=-1; this.value=''; } updateCursorPosition(line);} setTimeout(()=>updateCursorPosition(line),0); }
+        function processCommand(commandText){ const line=document.querySelector('.current-line:last-child'); if(!line) return; line.className='output-line command-echo'; line.textContent=`C:\\PORTFOLIO>${commandText}`; const command=commandText.trim().toLowerCase(); if(command){ commandHistory.push(command); historyIndex=-1; } createNewInputLine(); if(command) executeCommand(command); addOutput(''); scrollToBottom(); }
+        function addOutput(text, cls=''){ const line=document.createElement('div'); line.className=`output-line ${cls}`.trim(); line.innerHTML=text; const current=document.querySelector('.current-line:last-child'); if(current){ terminalScreen.insertBefore(line,current);} else { terminalScreen.appendChild(line);} }
+        function scrollToBottom(){ terminalScreen.scrollTop=terminalScreen.scrollHeight; }
+        function createNewInputLine(){ const newLine=document.createElement('div'); newLine.className='current-line'; newLine.innerHTML=`<span class="output-line">C:\\PORTFOLIO></span><input type="text" class="inline-input" autocomplete="off"><span class="inline-cursor"></span>`; terminalScreen.appendChild(newLine); bindInputEvents(newLine.querySelector('.inline-input')); scrollToBottom(); }
+        function executeCommand(c){ if(c.startsWith('type ')){ const f=c.substring(5).trim().toLowerCase(); typeFile(f);} else if(commands[c]){ commands[c](); } else if(c!==''){ addOutput(`'${c}' is not recognized as an internal or external command,`,'error-text'); addOutput('operable program or batch file.','error-text'); addOutput('Type "dir" to see available commands.','info-text'); }}
+        function clearScreen(){ terminalScreen.innerHTML=`<div class="current-line"><span class="output-line">C:\\PORTFOLIO></span><input type="text" class="inline-input" autocomplete="off"><span class="inline-cursor"></span></div>`; bindInputEvents(terminalScreen.querySelector('.inline-input')); }
+        function showDirectory(){ addOutput('Directory of C:\\PORTFOLIO'); addOutput(''); addOutput('ABOUT.EXE        Personal information and background'); addOutput('SKILLS.EXE       Technical skills and proficiencies'); addOutput('PROJECTS.EXE     Personal projects and applications'); addOutput('GITHUB.EXE       GitHub activity and repositories'); }
+        function showHelp(){ addOutput('Kim Otávio Portfolio Terminal - Available Commands:'); addOutput(''); addOutput('DIR              Show directory contents'); addOutput('HELP             Show help information'); addOutput('CLS/CLEAR        Clear the terminal screen'); addOutput('VER              Display version information'); }
+        function showAbout(){ addOutput('ABOUT.EXE'); addOutput('========='); addOutput(''); addOutput('Name: Kim Otávio'); addOutput('Title: Senior .NET Developer • Full-Stack Engineer'); addOutput(''); addOutput('Senior .NET Developer with over ten years of experience working as a'); addOutput('full stack developer for .NET platform systems, including large-scale'); addOutput('solutions handling high volumes of data and users.'); addOutput(''); addOutput('From an early age, I\'ve always had a strong passion for technology,'); addOutput('fueled by my curiosity and an ease in picking up new skills. This'); addOutput('drive has shaped me into someone who is always eager to learn and'); addOutput('embrace new challenges, allowing me to grow both personally and'); addOutput('professionally.'); addOutput(''); addOutput('Core Technologies: ASP.NET, C#, Azure, React, TypeScript'); addOutput(''); addOutput('LinkedIn: https://linkedin.com/in/kim-otavio'); addOutput('GitHub: https://github.com/Zonary'); }
+        function showSkills(){ addOutput('SKILLS.EXE'); addOutput('=========='); addOutput(''); addOutput('.NET & Backend:'); addOutput('C#               ████████████████████ 95%'); addOutput('ASP.NET          ██████████████████   90%'); addOutput('.NET Core        ██████████████████   90%'); addOutput('Web Services API ████████████████     80%'); addOutput('WinForms         ███████████████      75%'); addOutput(''); addOutput('Frontend & Web:'); addOutput('JavaScript       █████████████████    85%'); addOutput('TypeScript       ████████████████     80%'); addOutput('ReactJs          ████████████████     80%'); addOutput('Angular          ███████████████      75%'); addOutput('HTML             ██████████████████   90%'); addOutput('CSS              ███████████████      75%'); addOutput('Bootstrap        ██████████████       70%'); addOutput('jQuery           ██████████████       70%'); addOutput(''); addOutput('Database & Data:'); addOutput('SQL Server       ██████████████████   90%'); addOutput('Oracle Database  ███████████████      75%'); addOutput('SSRS             ██████████████       70%'); addOutput(''); addOutput('DevOps & Tools:'); addOutput('Azure DevOps     █████████████████    85%'); addOutput('Git              █████████████████    85%'); addOutput('DevOps           ████████████████     80%'); addOutput(''); addOutput('Methodologies:'); addOutput('Agile            █████████████████    85%'); addOutput('Scrum            █████████████████    85%'); addOutput('Problem Solving  ██████████████████   90%'); addOutput('BDD              ███████████████      75%'); }
+        function showProjects(){ addOutput('PROJECTS.EXE'); addOutput('============'); addOutput(''); addOutput('Personal Projects:'); addOutput(''); addOutput('1. KanaDojo - Hiragana and Katakana trainer app'); addOutput('   URL: <a href="https://kim-otavio.is-a.dev/kanadojo" target="_blank" class="project-link">https://kim-otavio.is-a.dev/kanadojo</a>'); addOutput('   Description: Interactive Japanese character learning application'); addOutput('   for mastering Hiragana and Katakana scripts through practice'); addOutput('   and repetition.'); addOutput('   Technologies: HTML, CSS, JavaScript'); addOutput(''); addOutput('Status: Active and available for use'); }
+        function showGithub(){ addOutput('GITHUB.EXE'); addOutput('=========='); addOutput(''); addOutput('GitHub Profile: Zonary'); addOutput('URL: https://github.com/Zonary'); addOutput(''); addOutput('Statistics:'); addOutput('Public Repositories: 4'); addOutput('Followers: 1'); addOutput('Following: 1'); addOutput('Total Contributions: 10 (past year)'); addOutput(''); addOutput('Recent Activity: Sparse contributions over the past year'); addOutput('Primary focus on .NET development and Japanese learning tools'); addOutput(''); addOutput('Notable Repositories:'); addOutput('- KanaDojo: Japanese character learning application'); addOutput('- ProjectZomboidTranslations: Translation files for Project Zomboid'); }
+        function typeFile(filename){ if(!filename){ addOutput('The syntax of the command is incorrect.','error-text'); addOutput('Usage: TYPE filename','info-text'); return; } switch(filename){ case 'about.exe': showAbout(); break; case 'skills.exe': showSkills(); break; case 'projects.exe': showProjects(); break; case 'github.exe': showGithub(); break; default: addOutput(`The system cannot find the file specified: ${filename}`,'error-text'); addOutput('Available files: ABOUT.EXE, SKILLS.EXE, PROJECTS.EXE, GITHUB.EXE','info-text'); }}
+        function exitTerminal(){ addOutput("Thank you for visiting Kim Otávio's portfolio!",'success-text'); addOutput('Goodbye!','success-text'); setTimeout(()=>{ try{ window.close(); }catch(_){ } },2000); }
+        function showVersion(){ addOutput('Kim Otávio Portfolio Terminal [Version 2.0.24]'); addOutput('(c) 2024 Kim Otávio. All rights reserved.'); }
+        document.addEventListener('click', ()=>{ const current=document.querySelector('.current-line:last-child .inline-input'); if(current) current.focus(); });
+        bindInputEvents(initialInput);
+        window.addEventListener('load', ()=>{ setTimeout(()=>{ scrollToBottom(); updateCursorPosition(); },200); });
+    </script>
+</body>
+</html>
